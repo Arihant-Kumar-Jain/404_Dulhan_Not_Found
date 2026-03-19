@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Building2, Palmtree, MapPin, Users, CalendarHeart, 
-  Wine, Utensils, Music, Sparkles, Gem, Paintbrush 
+import {
+  Building2, Palmtree, MapPin, Users, CalendarHeart,
+  Wine, Utensils, Music, Sparkles, Gem, Paintbrush
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -67,7 +67,7 @@ export default function WizardPage() {
   return (
     <div className={styles.wizardMain}>
       <div className={styles.wizardContainer}>
-        
+
         {/* Progress Header */}
         <div className={styles.header}>
           <h1 className={styles.title}>Plan Your Dream Wedding</h1>
@@ -100,12 +100,12 @@ export default function WizardPage() {
 
             <div className={styles.formGroup}>
               <label className={styles.label}><Users size={16} /> Guest Count</label>
-              <input 
-                type="number" 
-                className={styles.input} 
+              <input
+                type="number"
+                className={styles.input}
                 min="50" max="2000" step="50"
-                value={formData.guest_count} 
-                onChange={e => updateField('guest_count', parseInt(e.target.value) || 300)} 
+                value={formData.guest_count}
+                onChange={e => updateField('guest_count', parseInt(e.target.value) || 300)}
               />
             </div>
 
@@ -121,12 +121,12 @@ export default function WizardPage() {
 
             <div className={styles.formGroup}>
               <label className={styles.label}><Building2 size={16} /> Rooms Required</label>
-              <input 
-                type="number" 
-                className={styles.input} 
+              <input
+                type="number"
+                className={styles.input}
                 min="0" max="500" step="10"
-                value={formData.room_count} 
-                onChange={e => updateField('room_count', parseInt(e.target.value) || 0)} 
+                value={formData.room_count}
+                onChange={e => updateField('room_count', parseInt(e.target.value) || 0)}
               />
             </div>
 
@@ -138,7 +138,7 @@ export default function WizardPage() {
                   { id: 'premium', label: '5-Star Hotels', icon: <Gem /> },
                   { id: '5star_palace', label: 'Heritage Palaces', icon: <Palmtree /> }
                 ].map(t => (
-                  <div 
+                  <div
                     key={t.id}
                     className={`${styles.tierCard} ${formData.hotel_tier === t.id ? styles.selected : ''}`}
                     onClick={() => updateField('hotel_tier', t.id)}
@@ -155,13 +155,13 @@ export default function WizardPage() {
         {/* STEP 2: Events & F&B */}
         {step === 2 && (
           <div className={`${styles.formGrid} animate-fadeIn`}>
-            
+
             <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label className={styles.label}><CalendarHeart size={16}/> Functions</label>
+              <label className={styles.label}><CalendarHeart size={16} /> Functions</label>
               <div className={styles.selectionChips}>
                 {['mehendi', 'haldi', 'sangeet', 'pheras', 'reception'].map(ev => (
-                  <div 
-                    key={ev} 
+                  <div
+                    key={ev}
                     className={`${styles.chip} ${formData.events.includes(ev) ? styles.selected : ''}`}
                     onClick={() => toggleArrayItem('events', ev)}
                   >
@@ -189,7 +189,7 @@ export default function WizardPage() {
               </select>
             </div>
 
-             <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
               <label className={styles.label}><Music size={16} /> Entertainment Tier</label>
               <div className={styles.tierGrid}>
                 {[
@@ -197,7 +197,7 @@ export default function WizardPage() {
                   { id: 'premium', label: 'Live Bands & Anchor' },
                   { id: 'luxury', label: 'Celebrity Acts & Concerts' }
                 ].map(t => (
-                  <div 
+                  <div
                     key={t.id}
                     className={`${styles.tierCard} ${formData.entertainment_tier === t.id ? styles.selected : ''}`}
                     onClick={() => updateField('entertainment_tier', t.id)}
@@ -214,7 +214,7 @@ export default function WizardPage() {
         {/* STEP 3: Decor & Extras */}
         {step === 3 && (
           <div className={`${styles.formGrid} animate-fadeIn`}>
-            
+
             <div className={styles.formGroup}>
               <label className={styles.label}><Paintbrush size={16} /> Decor Theme</label>
               <select className={styles.select} value={formData.decor_style} onChange={e => updateField('decor_style', e.target.value)}>
@@ -228,10 +228,10 @@ export default function WizardPage() {
             <div className={styles.formGroup}>
               <label className={styles.label}><Sparkles size={16} /> Decor Complexity (1-5)</label>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <input 
-                  type="range" 
-                  min="1" max="5" 
-                  value={formData.decor_complexity} 
+                <input
+                  type="range"
+                  min="1" max="5"
+                  value={formData.decor_complexity}
                   onChange={e => updateField('decor_complexity', parseInt(e.target.value))}
                   style={{ flexGrow: 1, accentColor: 'var(--maroon)' }}
                 />
@@ -240,17 +240,17 @@ export default function WizardPage() {
             </div>
 
             <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label className={styles.label}><Gem size={16}/> Premium Add-ons (Optional)</label>
+              <label className={styles.label}><Gem size={16} /> Premium Add-ons (Optional)</label>
               <div className={styles.selectionChips}>
                 {[
-                  'Vintage car for Baraat', 
-                  'Drone mapping & VR', 
-                  'Custom built stage', 
-                  'Cold pyros & confetti', 
+                  'Vintage car for Baraat',
+                  'Drone mapping & VR',
+                  'Custom built stage',
+                  'Cold pyros & confetti',
                   'Foreign hostesses'
                 ].map(el => (
-                  <div 
-                    key={el} 
+                  <div
+                    key={el}
                     className={`${styles.chip} ${formData.special_elements.includes(el) ? styles.selected : ''}`}
                     onClick={() => toggleArrayItem('special_elements', el)}
                   >
@@ -266,15 +266,15 @@ export default function WizardPage() {
         {/* Footer Actions */}
         <div className={styles.footer}>
           {step > 1 ? (
-             <button className="btn-secondary" onClick={handleBack}>Go Back</button>
+            <button className="btn-secondary" onClick={handleBack}>Go Back</button>
           ) : (
             <div /> // Spacer
           )}
-          
+
           {step < 3 ? (
-             <button className="btn-primary" onClick={handleNext}>Next Step</button>
+            <button className="btn-primary" onClick={handleNext}>Next Step</button>
           ) : (
-             <button className="btn-gold" onClick={handleSubmit}>Generate Budget</button>
+            <button className="btn-gold" onClick={handleSubmit}>Generate Budget</button>
           )}
         </div>
 

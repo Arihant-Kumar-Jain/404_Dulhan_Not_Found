@@ -73,3 +73,30 @@ export async function GET(request: Request) {
         );
     }
 }
+
+export async function PATCH(request: Request) {
+    try {
+        const body = await request.json();
+        const { source_id, function_type, style, complexity_tier, cost_estimate } = body;
+
+        if (!source_id) {
+            return NextResponse.json({ error: 'source_id is required' }, { status: 400 });
+        }
+
+        const db = getPool();
+        await db.query(
+            `UPDATE decor_library
+             SET function_type = $1, style = $2, complexity_tier = $3, cost_estimate = $4, is_tagged = true
+             WHERE source_id = $5`,
+            [function_type, style, complexity_tier, cost_estimate, source_id]
+        );
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Decor PATCH error:', error);
+        return NextResponse.json(
+            { error: 'Failed to update label', details: String(error) },
+            { status: 500 }
+        );
+    }
+}
