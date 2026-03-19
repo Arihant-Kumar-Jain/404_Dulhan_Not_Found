@@ -4,8 +4,8 @@ Artist & Entertainment agent — Sangeet Agent.
 Maps entertainment tier → set of acts → summed low/mid/high costs.
 """
 from __future__ import annotations
-from .base_agent import BaseAgent, AgentResult
-from ..data.costs import ARTIST_COSTS, ENTERTAINMENT_TIER_MAP
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.data.costs import ARTIST_COSTS, ENTERTAINMENT_TIER_MAP
 
 
 class ArtistAgent(BaseAgent):

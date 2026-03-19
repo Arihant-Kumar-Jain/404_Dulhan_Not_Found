@@ -3,7 +3,7 @@ vendors.py — router for Nominatim+Overpass real vendor search.
 """
 from typing import Any
 from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict  # type: ignore
 from backend.estimation_pipeline.agents.vendor_search_agent import VendorSearchAgent
 
 router = APIRouter(prefix="/vendors", tags=["Vendors"])

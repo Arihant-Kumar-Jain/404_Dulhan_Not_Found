@@ -4,8 +4,8 @@ Food & Beverage agent — Dawat Agent.
 Calculates per-guest, per-event catering + bar costs.
 """
 from __future__ import annotations
-from .base_agent import BaseAgent, AgentResult
-from ..data.costs import (
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.data.costs import (
     FNB_COSTS, EVENT_MEAL_MAP, BAR_COSTS, BAR_EVENTS,
 )
 

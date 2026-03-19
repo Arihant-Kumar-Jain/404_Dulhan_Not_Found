@@ -8,8 +8,8 @@ Dholi units, and SFX using free APIs:
 """
 from __future__ import annotations
 import logging
-from .base_agent import BaseAgent, AgentResult
-from ..data.costs import LOGISTICS_COSTS
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.data.costs import LOGISTICS_COSTS
 
 logger = logging.getLogger(__name__)
 

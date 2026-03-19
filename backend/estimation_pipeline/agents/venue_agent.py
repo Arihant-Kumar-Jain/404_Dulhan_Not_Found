@@ -4,8 +4,8 @@ Venue & Accommodation agent — Mahal Agent.
 Uses VENUE_COSTS table: per-room-per-night × rooms × nights.
 """
 from __future__ import annotations
-from .base_agent import BaseAgent, AgentResult
-from ..data.costs import (
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.data.costs import (
     VENUE_COSTS, VENUE_FALLBACK_CITY, VENUE_FALLBACK_TIER,
 )
 

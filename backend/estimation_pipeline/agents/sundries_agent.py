@@ -5,8 +5,8 @@ Covers room baskets, ritual materials, gift hampers,
 stationery, and a configurable contingency buffer.
 """
 from __future__ import annotations
-from .base_agent import BaseAgent, AgentResult
-from ..data.costs import SUNDRIES, ENTERTAINMENT_TO_SUNDRY_TIER
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.data.costs import SUNDRIES, ENTERTAINMENT_TO_SUNDRY_TIER
 
 
 class SundriesAgent(BaseAgent):

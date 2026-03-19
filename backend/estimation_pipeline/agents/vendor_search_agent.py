@@ -19,7 +19,7 @@ from typing import Any
 
 import httpx
 
-from .base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
 
 logger = logging.getLogger(__name__)
 
@@ -273,7 +273,7 @@ def _empty_result() -> AgentResult:
     return AgentResult(
         agent_id="vendor_search",
         name="Nearby Vendors",
-        icon="🗺️",
+        icon="",
         low=0, mid=0, high=0,
         details="No vendor data retrieved.",
         vendors={},

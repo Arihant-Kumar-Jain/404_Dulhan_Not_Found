@@ -6,7 +6,7 @@ The model is loaded lazily so cold starts don't crash the server.
 """
 from __future__ import annotations
 import logging
-from .base_agent import BaseAgent, AgentResult
+from backend.estimation_pipeline.agents.base_agent import BaseAgent, AgentResult
 
 logger = logging.getLogger(__name__)
 
