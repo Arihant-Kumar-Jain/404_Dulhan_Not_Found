@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import styles from './page.module.css';
+
+const Chatbot = dynamic(() => import('@/components/Chatbot'), { ssr: false });
 
 /* ═══════════════ Bottom Navigation (Figma: 5 tabs) ═══════════════ */
 function BottomNav() {
@@ -141,6 +144,7 @@ const PackIcon = ({ type }: { type: number }) => (
 export default function HomePage() {
   const [loaded, setLoaded] = useState(false);
   const [lang, setLang] = useState<'en' | 'hi'>('en');
+  const [isChatOpen, setChatOpen] = useState(false);
   const d = t[lang];
 
   useEffect(() => { setTimeout(() => setLoaded(true)); }, []);
@@ -148,10 +152,11 @@ export default function HomePage() {
   return (
     <main className={styles.main}>
       {/* Floating Elements */}
-      <div className={styles.floatingWidgets}>
-        <div className={styles.chatWidget}>
+      <div className={styles.floatingWidgets} style={{ zIndex: 9999 }}>
+        <div className={styles.chatWidget} onClick={() => setChatOpen(true)} style={{ cursor: 'pointer' }}>
           <img src="/boticon.png" alt="Chat with AI" className={styles.floatingIconExtraLarge} />
         </div>
+        {isChatOpen && <Chatbot onClose={() => setChatOpen(false)} />}
       </div>
 
       {/* Desktop Nav */}
@@ -165,10 +170,11 @@ export default function HomePage() {
             <Link href="/admin">{d.navAdmin}</Link>
           </nav>
           <div className={styles.headerActions}>
-            <select className={styles.langSelect} value={lang} onChange={e => setLang(e.target.value as 'en' | 'hi')}>
-              <option value="en">English</option>
-              <option value="hi">हिंदी</option>
-            </select>
+            <div style={{ display: 'flex', gap: '6px', cursor: 'pointer', fontWeight: '600', color: 'var(--maroon)', fontSize: '0.9rem', alignItems: 'center' }}>
+              <span onClick={() => setLang('en')} style={{ opacity: lang === 'en' ? 1 : 0.5, transition: 'opacity 0.2s' }}>En</span>
+              <span style={{ opacity: 0.3 }}>|</span>
+              <span onClick={() => setLang('hi')} style={{ opacity: lang === 'hi' ? 1 : 0.5, transition: 'opacity 0.2s' }}>हिं</span>
+            </div>
             <Link href="/wizard" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.8125rem' }}>
               {lang === 'hi' ? 'शुरू करें' : 'Get Started'}
             </Link>
