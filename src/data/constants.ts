@@ -1,10 +1,10 @@
 export const CITIES = [
-  { id: 'udaipur', name: 'Udaipur', state: 'Rajasthan', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=600', description: 'City of Lakes — Royal palace weddings', coords: { x: 24.58, y: 73.68 } },
+  { id: 'udaipur', name: 'Udaipur', state: 'Rajasthan', image: '/assets/udaipur.avif', description: 'City of Lakes — Royal palace weddings', coords: { x: 24.58, y: 73.68 } },
   { id: 'jaipur', name: 'Jaipur', state: 'Rajasthan', image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600', description: 'Pink City — Majestic forts & havelis', coords: { x: 26.91, y: 75.78 } },
   { id: 'mumbai', name: 'Mumbai', state: 'Maharashtra', image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600', description: 'City of Dreams — Luxury seaside weddings', coords: { x: 19.07, y: 72.87 } },
   { id: 'delhi', name: 'Delhi', state: 'Delhi NCR', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=600', description: 'Capital grandeur — Heritage & modern venues', coords: { x: 28.61, y: 77.20 } },
   { id: 'goa', name: 'Goa', state: 'Goa', image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600', description: 'Beach paradise — Destination wedding bliss', coords: { x: 15.29, y: 73.95 } },
-  { id: 'jodhpur', name: 'Jodhpur', state: 'Rajasthan', image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600', description: 'Blue City — Desert royalty weddings', coords: { x: 26.26, y: 73.00 } },
+  { id: 'jodhpur', name: 'Jodhpur', state: 'Rajasthan', image: '/assets/jodhpur.jpg', description: 'Blue City — Desert royalty weddings', coords: { x: 26.26, y: 73.00 } },
 ];
 
 export const HOTEL_TIERS = [
