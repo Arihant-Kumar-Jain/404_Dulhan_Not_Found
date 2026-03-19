@@ -29,7 +29,7 @@ class Settings:
 
     # --- CLIP ---
     CLIP_MODEL_NAME: str = os.getenv("CLIP_MODEL_NAME", "ViT-B-32")
-    CLIP_PRETRAINED: str = os.getenv("CLIP_PRETRAINED", "laion2b_s34b_b79k")
+    CLIP_PRETRAINED: str = os.getenv("CLIP_PRETRAINED", "openai")
 
     # --- Training ---
     TRAIN_EPOCHS: int = int(os.getenv("TRAIN_EPOCHS", "200"))
