@@ -764,6 +764,214 @@
   font-family: 'Jost', var(--font-body), sans-serif;
 }
 
+/* ── Image Picker Modal ── */
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.pickerModal {
+  background: #2A2520;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(200, 191, 176, 0.15);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.pickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(200, 191, 176, 0.1);
+}
+
+.pickerTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #FAF7F2;
+  margin: 0;
+}
+
+.pickerSubtitle {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(200, 191, 176, 0.6);
+  margin: 4px 0 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pickerClose {
+  background: none;
+  border: none;
+  color: rgba(200, 191, 176, 0.6);
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.pickerClose:hover {
+  color: #FAF7F2;
+  background: rgba(200, 191, 176, 0.1);
+}
+
+.pickerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.pickerCard {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.pickerCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pickerCard:hover {
+  transform: scale(1.03);
+}
+
+.pickerCardSelected {
+  border-color: #9A2143;
+  box-shadow: 0 0 0 1px #9A2143;
+}
+
+.pickerCardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.pickerTag {
+  font-size: 0.6rem;
+  font-family: 'Jost', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+.pickerCheck {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: #9A2143;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pickerSkeleton {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: linear-gradient(110deg, #3a3530 30%, #4a4540 50%, #3a3530 70%);
+  background-size: 200% 100%;
+  animation: pickerShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes pickerShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.pickerFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(200, 191, 176, 0.1);
+}
+
+.pickerLoadMore {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(200, 191, 176, 0.7);
+  background: transparent;
+  border: 1px solid rgba(200, 191, 176, 0.2);
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.pickerLoadMore:hover {
+  border-color: rgba(200, 191, 176, 0.4);
+  color: #FAF7F2;
+}
+
+.pickerLoadMore:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pickerAddBtn {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #FAF7F2;
+  background: #9A2143;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.pickerAddBtn:hover {
+  background: #7d1a36;
+}
+
+.pickerAddBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .overviewGrid {

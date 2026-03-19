@@ -15,7 +15,6 @@ function StepCity() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>🏙️</span>
         <h2 className={styles.stepTitle}>Where&apos;s the Magic Happening?</h2>
         <p className={styles.stepSubtitle}>Select your wedding destination city</p>
       </div>
@@ -46,7 +45,6 @@ function StepHotel() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>🏨</span>
         <h2 className={styles.stepTitle}>Choose Your Venue Style</h2>
         <p className={styles.stepSubtitle}>This affects your base accommodation costs</p>
       </div>
@@ -89,7 +87,6 @@ function StepGuests() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>👥</span>
         <h2 className={styles.stepTitle}>How Grand is the Celebration?</h2>
         <p className={styles.stepSubtitle}>Guest count directly impacts F&B, décor, and logistics costs</p>
       </div>
@@ -151,7 +148,6 @@ function StepEvents() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>🎉</span>
         <h2 className={styles.stepTitle}>Select Your Wedding Events</h2>
         <p className={styles.stepSubtitle}>Each event has separate décor, catering, and logistics costs</p>
       </div>
@@ -186,7 +182,6 @@ function StepDecor() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>🎨</span>
         <h2 className={styles.stepTitle}>What&apos;s Your Décor Vision?</h2>
         <p className={styles.stepSubtitle}>Style and complexity tier directly impact décor costs</p>
       </div>
@@ -231,7 +226,6 @@ function StepFoodEntertainment() {
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <span className={styles.stepEmoji}>🍽️ 🎤</span>
         <h2 className={styles.stepTitle}>Food, Bar & Entertainment</h2>
         <p className={styles.stepSubtitle}>The heart of every Indian celebration</p>
       </div>
@@ -344,7 +338,7 @@ export default function WizardPage() {
     <div className={styles.wizardPage}>
       <nav className={styles.wizardNav}>
         <Link href="/" className={styles.backLink}>← Back to Home</Link>
-        <h1 className={styles.wizardLogo}>💍 WeddingBudget.ai</h1>
+        <h1 className={styles.wizardLogo}>WeddingBudget.ai</h1>
       </nav>
 
       <WizardProgress current={currentStep} total={totalSteps} />
@@ -367,7 +361,7 @@ export default function WizardPage() {
           disabled={!canProceed()}
           className="btn-primary"
         >
-          {currentStep === totalSteps - 1 ? '✨ Generate Budget' : 'Next Step →'}
+          {currentStep === totalSteps - 1 ? 'Generate Budget' : 'Next Step →'}
         </button>
       </div>
     </div>

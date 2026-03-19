@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import styles from './admin.module.css';
 
@@ -82,6 +82,7 @@ type DecorItem = {
   style: string;
   complexity: number; // out of 5
   cost: string;
+  sourceId?: string; // Supabase source_id for DB-backed images
 };
 
 const DECOR_ITEMS: DecorItem[] = [
@@ -114,6 +115,17 @@ const DECOR_ITEMS: DecorItem[] = [
   },
 ];
 
+/* ── DB Image type for picker ── */
+type DBImage = {
+  id: string;
+  url: string;
+  thumb: string;
+  category: string;
+  style: string;
+  tags: string;
+  author: string;
+};
+
 /* ── Complexity dots ── */
 function ComplexityDots({ count, total = 5 }: { count: number; total?: number }) {
   return (
@@ -128,17 +140,47 @@ function ComplexityDots({ count, total = 5 }: { count: number; total?: number })
   );
 }
 
-/* ── Single decor card ── */
-function DecorCard({ item }: { item: DecorItem }) {
+/* ── Single decor card (now saves to DB) ── */
+function DecorCard({ item, onSaved }: { item: DecorItem; onSaved?: (id: string) => void }) {
   const [fn, setFn] = useState(item.fn);
   const [style, setStyle] = useState(item.style);
   const [complexity, setComplexity] = useState(item.complexity);
   const [cost, setCost] = useState(item.cost);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  function handleSave() {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  async function handleSave() {
+    // If item has a sourceId, save to Supabase
+    if (item.sourceId) {
+      setSaving(true);
+      try {
+        const res = await fetch('/api/decor', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source_id: item.sourceId,
+            function_type: fn,
+            style: style,
+            complexity_tier: complexity,
+            cost_estimate: cost ? `₹${cost}` : null,
+          }),
+        });
+        if (res.ok) {
+          setSaved(true);
+          setTimeout(() => {
+            setSaved(false);
+            onSaved?.(item.sourceId!);
+          }, 1500);
+        }
+      } catch (err) {
+        console.error('Save failed:', err);
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
   }
 
   return (
@@ -231,8 +273,125 @@ function DecorCard({ item }: { item: DecorItem }) {
           <button
             className={`${styles.labelSaveBtn} ${saved ? styles.labelSaveBtnSaved : ''}`}
             onClick={handleSave}
+            disabled={saving}
           >
-            {saved ? 'Saved ✓' : 'Save Label'}
+            {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save Label'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Image Picker Modal ── */
+function ImagePickerModal({
+  onClose,
+  onSelect,
+}: {
+  onClose: () => void;
+  onSelect: (images: DBImage[]) => void;
+}) {
+  const [images, setImages] = useState<DBImage[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [offset, setOffset] = useState(0);
+  const PAGE_SIZE = 30;
+
+  const fetchImages = useCallback(async (newOffset: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/decor/unlabeled?limit=${PAGE_SIZE}&offset=${newOffset}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (newOffset === 0) {
+          setImages(data.images);
+        } else {
+          setImages(prev => [...prev, ...data.images]);
+        }
+        setTotal(data.total);
+      }
+    } catch (err) {
+      console.error('Failed to fetch unlabeled images:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchImages(0);
+  }, [fetchImages]);
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleAdd() {
+    const selectedImages = images.filter(img => selected.has(img.id));
+    onSelect(selectedImages);
+    onClose();
+  }
+
+  function loadMore() {
+    const newOffset = offset + PAGE_SIZE;
+    setOffset(newOffset);
+    fetchImages(newOffset);
+  }
+
+  return (
+    <div className={styles.pickerOverlay} onClick={onClose}>
+      <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+        <div className={styles.pickerHeader}>
+          <div>
+            <h3 className={styles.pickerTitle}>Select Images to Label</h3>
+            <p className={styles.pickerSubtitle}>{total} unlabeled images in database</p>
+          </div>
+          <button className={styles.pickerClose} onClick={onClose}>✕</button>
+        </div>
+
+        <div className={styles.pickerGrid}>
+          {images.map(img => (
+            <div
+              key={img.id}
+              className={`${styles.pickerCard} ${selected.has(img.id) ? styles.pickerCardSelected : ''}`}
+              onClick={() => toggleSelect(img.id)}
+            >
+              <img src={img.thumb} alt={img.tags || 'Decor image'} />
+              <div className={styles.pickerCardOverlay}>
+                <span className={styles.pickerTag}>{img.category}</span>
+              </div>
+              {selected.has(img.id) && (
+                <div className={styles.pickerCheck}>
+                  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {loading && Array.from({ length: 6 }).map((_, i) => (
+            <div key={`skel-${i}`} className={styles.pickerSkeleton} />
+          ))}
+        </div>
+
+        <div className={styles.pickerFooter}>
+          {images.length < total && (
+            <button className={styles.pickerLoadMore} onClick={loadMore} disabled={loading}>
+              {loading ? 'Loading…' : `Load More (${total - images.length} remaining)`}
+            </button>
+          )}
+          <button
+            className={styles.pickerAddBtn}
+            onClick={handleAdd}
+            disabled={selected.size === 0}
+          >
+            Add Selected ({selected.size})
           </button>
         </div>
       </div>
@@ -245,6 +404,8 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
+  const [dbDecorItems, setDbDecorItems] = useState<DecorItem[]>([]);
 
   if (!isAuthenticated) {
     return (
@@ -399,15 +560,44 @@ export default function AdminPanel() {
               <p className={styles.contentDesc}>Label décor images with function type, style, complexity, and seed cost</p>
               <div className={styles.labelGrid}>
                 {DECOR_ITEMS.map((item, i) => (
-                  <DecorCard key={i} item={item} />
+                  <DecorCard key={`static-${i}`} item={item} />
                 ))}
 
-                {/* Upload new */}
-                <div className={styles.labelUploadZone}>
+                {dbDecorItems.map((item) => (
+                  <DecorCard
+                    key={`db-${item.sourceId}`}
+                    item={item}
+                    onSaved={(id) => {
+                      setDbDecorItems(prev => prev.filter(x => x.sourceId !== id));
+                    }}
+                  />
+                ))}
+
+                {/* Upload new — opens picker */}
+                <div className={styles.labelUploadZone} onClick={() => setShowPicker(true)}>
                   <span className={styles.labelUploadIcon}><UploadIcon /></span>
-                  <span className={styles.labelUploadText}>Upload new décor image</span>
+                  <span className={styles.labelUploadText}>Select images from database to label</span>
                 </div>
               </div>
+
+              {showPicker && (
+                <ImagePickerModal
+                  onClose={() => setShowPicker(false)}
+                  onSelect={(imgs) => {
+                    const newItems: DecorItem[] = imgs.map(img => ({
+                      img: img.url,
+                      fn: img.category || 'Pheras',
+                      ceremonyTitle: img.tags?.split(',')[0]?.trim() || 'Unlabeled',
+                      ceremonySubtitle: `Source: ${img.author}`,
+                      style: img.style || 'Traditional',
+                      complexity: 3,
+                      cost: '',
+                      sourceId: img.id,
+                    }));
+                    setDbDecorItems(prev => [...prev, ...newItems]);
+                  }}
+                />
+              )}
             </div>
           )}
 
