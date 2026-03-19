@@ -61,7 +61,7 @@ class OrchestratorResult:
             "total_mid"    : self.total_mid,
             "total_high"   : self.total_high,
             "confidence"   : self.confidence,
-            "breakdown"    : self.breakdown,
+            "categories"   : list(self.breakdown.values()),
             "vendors"      : self.vendor_result.get("vendors", {}) if self.vendor_result else {},
         }
 
@@ -146,7 +146,7 @@ class Orchestrator:
         orch_result = OrchestratorResult(session_id, results, confidence)
 
         await self._emit({
-            "type"      : "budget_complete",
+            "type"      : "final_budget",
             **orch_result.to_dict(),
         })
 

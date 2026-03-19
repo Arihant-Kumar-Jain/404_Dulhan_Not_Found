@@ -1,0 +1,231 @@
+.wizardMain {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl) var(--space-lg);
+  position: relative;
+  background: var(--bg-cream);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(191, 160, 84, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(154, 33, 67, 0.05), transparent 25%);
+  overflow: hidden;
+}
+
+.wizardContainer {
+  width: 100%;
+  max-width: 760px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(191, 160, 84, 0.2);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  padding: var(--space-3xl);
+  position: relative;
+  z-index: 10;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--maroon);
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.progressContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+  position: relative;
+}
+
+.progressLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #E8E4DC;
+  z-index: 0;
+  transform: translateY(-50%);
+}
+
+.progressFill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2px;
+  background: var(--gradient-maroon);
+  z-index: 1;
+  transform: translateY(-50%);
+  transition: width 0.4s var(--ease-out-expo);
+}
+
+.stepDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #E8E4DC;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 2;
+  transition: all var(--transition-fast);
+}
+
+.stepDot.active {
+  background: var(--maroon);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(154, 33, 67, 0.15);
+}
+
+.stepDot.completed {
+  background: var(--gold);
+  color: white;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.formGroup.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input, .select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #E8E4DC;
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.input:focus, .select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(191, 160, 84, 0.1);
+}
+
+.selectionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 10px 18px;
+  border: 1px solid #E8E4DC;
+  border-radius: var(--radius-full);
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-body);
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.chip.selected {
+  background: var(--maroon);
+  color: white;
+  border-color: var(--maroon);
+}
+
+.tierGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.tierCard {
+  border: 1px solid #E8E4DC;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+  transition: all var(--transition-fast);
+}
+
+.tierCard:hover {
+  border-color: var(--gold);
+  background: rgba(191, 160, 84, 0.05);
+}
+
+.tierCard.selected {
+  border-color: var(--maroon);
+  background: rgba(154, 33, 67, 0.05);
+}
+
+.tierIcon {
+  color: var(--maroon);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.tierTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(191, 160, 84, 0.2);
+  padding-top: var(--space-xl);
+}
+
+@media (max-width: 768px) {
+  .wizardContainer {
+    padding: var(--space-xl);
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

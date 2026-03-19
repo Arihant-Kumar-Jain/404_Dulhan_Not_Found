@@ -29,11 +29,30 @@ class WeddingInput(BaseModel):
     outstation_percentage: float = 0.5
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+def _json_safe(obj):
+    """Recursively convert numpy scalars and other non-serializable types to native Python."""
+    import numpy as np
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_safe(v) for v in obj]
+    if isinstance(obj, (np.floating, np.float32, np.float64)):
+        return float(obj)
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    return obj
+
+
 async def _ws_send(websocket: WebSocket, payload: dict) -> None:
     try:
-        await websocket.send_json(payload)
-    except Exception:
-        pass
+        safe_payload = _json_safe(payload)
+        await websocket.send_json(safe_payload)
+    except Exception as exc:
+        logger.error("WS send failed: %s | payload keys: %s", exc, list(payload.keys()))
 
 
 @router.websocket("/ws")

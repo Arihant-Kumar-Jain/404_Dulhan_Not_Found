@@ -1,0 +1,302 @@
+.budgetPage {
+  min-height: 100vh;
+  background: var(--bg-cream);
+  padding: var(--space-xl) var(--space-lg);
+  font-family: var(--font-body);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── HUD Loading View ── */
+.hudContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+.hudHeader {
+  margin-bottom: var(--space-2xl);
+}
+
+.hudTitle {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  color: var(--maroon);
+}
+
+.hudSubtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.agentsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: 900px;
+}
+
+.agentCard {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid #E8E4DC;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all var(--transition-medium);
+}
+
+.agentCard.working {
+  border-color: var(--gold);
+  box-shadow: 0 4px 20px rgba(191, 160, 84, 0.15);
+  transform: translateY(-2px);
+}
+
+.agentCard.done {
+  border-color: var(--emerald);
+  background: rgba(46, 139, 87, 0.02);
+}
+
+.agentIconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #E8E4DC;
+}
+
+.agentIconBox img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.agentInfo {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.agentName {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.statusIndicator.idle { background: var(--text-light); }
+.statusIndicator.working { background: var(--gold); animation: pulse 1s infinite alternate; }
+.statusIndicator.done { background: var(--emerald); }
+
+.agentMessage {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  height: 36px;
+  overflow: hidden;
+}
+
+/* ── Final Budget Dashboard ── */
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-md);
+  border-bottom: 2px solid var(--gold-light);
+}
+
+@media (max-width: 768px) {
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.titleBox h1 {
+  font-family: var(--font-display);
+  color: var(--maroon);
+  font-size: 2.2rem;
+  margin-bottom: 4px;
+}
+
+.titleBox p {
+  color: var(--text-body);
+  font-size: 0.95rem;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+  .summaryCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summaryCard {
+  background: white;
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid #E8E4DC;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.summaryCard.highlight {
+  border-color: var(--maroon);
+  box-shadow: 0 8px 30px rgba(154, 33, 67, 0.1);
+  transform: translateY(-4px);
+}
+
+.summaryCard.highlight::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--gradient-maroon);
+}
+
+.cardLabel {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.cardValue {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--text-dark);
+}
+
+.highlight .cardValue {
+  color: var(--maroon);
+}
+
+/* Categories Table */
+.tableContainer {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid #E8E4DC;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: var(--space-3xl);
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 16px 24px;
+  background: rgba(191, 160, 84, 0.08);
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--gold-light);
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 20px 24px;
+  border-bottom: 1px solid #E8E4DC;
+  align-items: center;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.catInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.catIcon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: var(--bg-cream);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #E8E4DC;
+}
+
+.catIcon img {
+  width: 24px; height: 24px;
+  object-fit: contain;
+}
+
+.catName {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.catDetail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.priceCol {
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text-body);
+}
+
+.priceCol.mid {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+@media (max-width: 768px) {
+  .tableHeader { display: none; }
+  .tableRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .priceCol::before {
+    content: attr(data-label) ": ";
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: normal;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.3); opacity: 0.6; }
+}
