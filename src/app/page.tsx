@@ -208,7 +208,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <img src="/hero_icon.png" alt="" className={styles.heroRightFloatingIcon} />
+        <div className={styles.heroImageOuter}>
+          <img src="/hero_icon.png" alt="" className={styles.heroRightFloatingIcon} />
+        </div>
 
 
       </section>

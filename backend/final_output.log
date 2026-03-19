@@ -1,0 +1,58 @@
+=== DEMO OUTPUT ===
+
+==================================================
+ 1. INITIALIZING WEDDING INPUT
+==================================================
+{
+  "city": "udaipur",
+  "guest_count": 350,
+  "events": [
+    "sangeet",
+    "reception"
+  ],
+  "hotel_tier": "5star_palace",
+  "food_type": "veg_nonveg",
+  "bar_type": "full_bar",
+  "entertainment_tier": "premium",
+  "decor_style": "royal",
+  "decor_complexity": 4,
+  "room_count": 100,
+  "outstation_percentage": 0.4,
+  "special_elements": [
+    "Giant LED screen backdrop",
+    "Ice sculptures"
+  ]
+}
+
+==================================================
+ 2. RUNNING ORCHESTRATOR & AGENTS (with Real-time WS Stream)
+==================================================
+[WS STREAM] Mahal Agent (Venue): Mahal Agent (Venue) starting analysis…
+[WS STREAM] Mahal Agent (Venue): 100 rooms × 2 nights @ Udaipur 5Star Palace
+[WS STREAM] Mahal Agent (Venue): Estimate → ₹90.0L (mid-range)
+[WS STREAM] Mahal Agent (Venue): Mahal Agent (Venue) complete.
+[WS STREAM] Dawat Agent (F&B): Dawat Agent (F&B) starting analysis…
+[WS STREAM] Dawat Agent (F&B): 350 guests × 2 events, veg nonveg menu, full bar bar
+[WS STREAM] Dawat Agent (F&B): Estimate → ₹49.0L (mid-range)
+[WS STREAM] Dawat Agent (F&B): Dawat Agent (F&B) complete.
+[WS STREAM] Sajawat Agent (Decor): Sajawat Agent (Decor) starting analysis…
+
+=== PYTEST OUTPUT ===
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\aman0\OneDrive\Desktop\404_Dulhan_Not_Found\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\aman0\OneDrive\Desktop\404_Dulhan_Not_Found\backend
+plugins: anyio-4.12.1, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 8 items
+
+tests/test_agents.py::test_venue_agent_calculation PASSED                [ 12%]
+tests/test_agents.py::test_fnb_agent_calculation PASSED                  [ 25%]
+tests/test_agents.py::test_sundries_agent_calculation PASSED             [ 37%]
+tests/test_api.py::test_budget_ws PASSED                                 [ 50%]
+tests/test_api.py::test_decor_predict_api PASSED                         [ 62%]
+tests/test_model.py::test_build_metadata_vector PASSED                   [ 75%]
+tests/test_model.py::test_nn_regressor_training_and_saving PASSED        [ 87%]
+tests/test_pipeline.py::test_orchestrator_runs_all_agents PASSED         [100%]
+
+============================== 8 passed in 8.88s ==============================
