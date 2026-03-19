@@ -1,40 +1,125 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useWizardStore } from '@/stores/wizardStore';
-import { useAgentStore } from '@/stores/agentStore';
 import { useBudgetStore } from '@/stores/budgetStore';
 import { formatCurrency } from '@/data/constants';
 import styles from './budget.module.css';
 
-/* ═══════════════ Agent Avatar ═══════════════ */
-function AgentAvatar({ icon, name, status }: { icon: string; name: string; status: string }) {
-  return (
-    <div className={`${styles.agentAvatar} ${styles[`agent${status}`] || ''}`}>
-      <div className={styles.agentEmoji}>{icon}</div>
-      <div className={styles.agentLabel}>{name}</div>
-      <div className={`agent-status-dot ${status}`} />
-    </div>
-  );
-}
+/* ─────────────────────────────────────────
+   DATA
+───────────────────────────────────────── */
+const AGENTS = [
+  {
+    id: 'venue',
+    name: 'Venue',
+    fullName: 'Venue Specialist',
+    img: '/assets/udaipur.avif',
+    tasks: ['Analysing destination venues', 'Checking 5-star tier rates', 'Calculating 50 rooms'],
+  },
+  {
+    id: 'fnb',
+    name: 'Food & Bev',
+    fullName: 'F&B Specialist',
+    img: '/assets/food.jpg',
+    tasks: ['500 guests per-head costs', 'Menu & bar estimation', 'Staffing overhead'],
+  },
+  {
+    id: 'decor',
+    name: 'Décor',
+    fullName: 'Décor Specialist',
+    img: '/assets/decor.jpg',
+    tasks: ['Tier 3 complexity analysis', 'Traditional style across 3 events', 'Design cost prediction'],
+  },
+  {
+    id: 'ent',
+    name: 'Entertainment',
+    fullName: 'Entertainment Specialist',
+    img: '/assets/entertainment.jpg',
+    tasks: ['Premium tier rates', 'Artist availability check'],
+  },
+  {
+    id: 'logi',
+    name: 'Logistics',
+    fullName: 'Logistics Specialist',
+    img: '/assets/logistics.jpg',
+    tasks: ['200 outstation guests', 'Fleet sizing & trips', 'Baraat logistics'],
+  },
+  {
+    id: 'sun',
+    name: 'Sundries',
+    fullName: 'Sundries Specialist',
+    img: '/assets/sundries.jpg',
+    tasks: ['50 room amenity baskets', 'Rituals & gifting'],
+  },
+];
 
-/* ═══════════════ Agent Chat Message ═══════════════ */
-function ChatMessage({ icon, agent, message, isNew }: { icon: string; agent: string; message: string; isNew: boolean }) {
+type AgentStatus = 'idle' | 'working' | 'done';
+
+/* ─────────────────────────────────────────
+   SUB-COMPONENTS
+───────────────────────────────────────── */
+
+function AgentCard({
+  agent,
+  status,
+  currentTask,
+  barPct,
+}: {
+  agent: typeof AGENTS[0];
+  status: AgentStatus;
+  currentTask: string;
+  barPct: number;
+}) {
   return (
-    <div className={`${styles.chatMessage} ${isNew ? styles.chatNew : ''}`}>
-      <span className={styles.chatIcon}>{icon}</span>
-      <div className={styles.chatBody}>
-        <strong className={styles.chatAgent}>{agent}</strong>
-        <p className={styles.chatText}>{message}</p>
+    <div className={`${styles.agCard} ${styles[`agCard_${status}`]}`}>
+      <div className={styles.agPhoto}>
+        <img src={agent.img} alt={agent.name} loading="lazy" />
+        <div className={styles.agOverlay} />
+
+        {status === 'working' && <div className={styles.agPulse} />}
+
+        {status === 'done' && (
+          <div className={styles.agCheck}>
+            <svg viewBox="0 0 10 10" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1.5,5 4,7.5 8.5,2.5" />
+            </svg>
+          </div>
+        )}
+
+        <div className={styles.agBarTrack}>
+          <div className={styles.agBarFill} style={{ width: `${barPct}%` }} />
+        </div>
+      </div>
+
+      <div className={styles.agInfo}>
+        <div className={`${styles.agName} ${status === 'working' ? styles.agName_working : status === 'done' ? styles.agName_done : ''}`}>
+          {agent.name}
+        </div>
+        <div className={`${styles.agTask} ${status === 'working' ? styles.agTask_visible : ''}`}>
+          {currentTask}
+        </div>
       </div>
     </div>
   );
 }
 
-/* ═══════════════ Budget Card ═══════════════ */
-function BudgetCard({ icon, name, low, mid, high, details }: {
-  icon: string; name: string; low: number; mid: number; high: number; details: string;
+function LogRow({ who, msg, isDone }: { who: string; msg: string; isDone: boolean }) {
+  return (
+    <div className={styles.logRow}>
+      <span className={styles.logWho}>{who}</span>
+      <span className={`${styles.logMsg} ${isDone ? styles.logMsg_done : ''}`}>
+        {isDone ? 'Analysis complete' : msg}
+      </span>
+    </div>
+  );
+}
+
+function BudgetCard({
+  name, img, low, mid, high, pct, detail,
+}: {
+  name: string; img: string; low: number; mid: number; high: number; pct: number; detail: string;
 }) {
   const [animated, setAnimated] = useState(false);
   useEffect(() => {
@@ -42,150 +127,133 @@ function BudgetCard({ icon, name, low, mid, high, details }: {
     return () => clearTimeout(t);
   }, []);
 
-  const maxVal = high;
-  const midPercent = maxVal > 0 ? (mid / maxVal) * 100 : 0;
-
   return (
     <div className={styles.budgetCard}>
-      <div className={styles.budgetCardHeader}>
-        <span className={styles.budgetCardIcon}>{icon}</span>
-        <h3>{name}</h3>
+      <div className={styles.budgetCardImg}>
+        <img src={img} alt={name} loading="lazy" />
+        <div className={styles.budgetCardImgOverlay} />
+        <div className={styles.budgetCardImgLabel}>{name}</div>
       </div>
       <div className={styles.budgetCardBody}>
-        <div className={styles.budgetRange}>
-          <div className={styles.budgetRangeItem}>
-            <span className={styles.rangeLabel}>Low</span>
-            <span className={styles.rangeValue}>{formatCurrency(low)}</span>
+        <div className={styles.budgetNums}>
+          <div className={styles.budgetNumItem}>
+            <span className={styles.numLabel}>Low</span>
+            <span className={styles.numVal}>{formatCurrency(low)}</span>
           </div>
-          <div className={`${styles.budgetRangeItem} ${styles.rangeMid}`}>
-            <span className={styles.rangeLabel}>Mid</span>
-            <span className={styles.rangeValue}>{formatCurrency(mid)}</span>
+          <div className={`${styles.budgetNumItem} ${styles.budgetNumItem_mid}`}>
+            <span className={styles.numLabel}>Mid</span>
+            <span className={styles.numVal}>{formatCurrency(mid)}</span>
           </div>
-          <div className={styles.budgetRangeItem}>
-            <span className={styles.rangeLabel}>High</span>
-            <span className={styles.rangeValue}>{formatCurrency(high)}</span>
+          <div className={styles.budgetNumItem}>
+            <span className={styles.numLabel}>High</span>
+            <span className={styles.numVal}>{formatCurrency(high)}</span>
           </div>
         </div>
-        <div className={styles.budgetBarContainer}>
-          <div
-            className={styles.budgetBar}
-            style={{ width: animated ? `${midPercent}%` : '0%' }}
-          />
+        <div className={styles.budgetBar}>
+          <div className={styles.budgetBarFill} style={{ width: animated ? `${pct}%` : '0%' }} />
         </div>
-        <p className={styles.budgetDetails}>{details}</p>
+        <p className={styles.budgetDetail}>{detail}</p>
       </div>
     </div>
   );
 }
 
-/* ═══════════════ Main Budget Page ═══════════════ */
+/* ─────────────────────────────────────────
+   MAIN PAGE
+───────────────────────────────────────── */
 export default function BudgetPage() {
-  const { input, isComplete } = useWizardStore();
-  const { agents, messages, progress, isCalculating, setCalculating, updateAgent, addMessage, setProgress, reset: resetAgents } = useAgentStore();
-  const { totalLow, totalMid, totalHigh, confidence, breakdown, hasResults, setBudget, reset: resetBudget } = useBudgetStore();
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const [phase, setPhase] = useState<'agents' | 'results'>('agents');
+  const { input } = useWizardStore();
+  const { setBudget, totalLow, totalMid, totalHigh, confidence, breakdown, hasResults, reset: resetBudget } = useBudgetStore();
+
+  const [phase, setPhase] = useState<'theater' | 'results'>('theater');
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>(
+    Object.fromEntries(AGENTS.map(a => [a.id, 'idle']))
+  );
+  const [agentTasks, setAgentTasks] = useState<Record<string, string>>(
+    Object.fromEntries(AGENTS.map(a => [a.id, '']))
+  );
+  const [agentBars, setAgentBars] = useState<Record<string, number>>(
+    Object.fromEntries(AGENTS.map(a => [a.id, 0]))
+  );
+  const [logRows, setLogRows] = useState<{ id: string; who: string; msg: string; isDone: boolean }[]>([]);
+  const [progress, setProgress] = useState({ done: 0, total: AGENTS.length });
+  const [allDone, setAllDone] = useState(false);
+  const [confAnimated, setConfAnimated] = useState(false);
+
+  const logRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
 
-  // Scroll chat to bottom on new messages
+  // Auto-scroll log
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
+  }, [logRows]);
 
-  // Simulate agent calculation
+  // Animate confidence bar on results mount
+  useEffect(() => {
+    if (phase === 'results') {
+      const t = setTimeout(() => setConfAnimated(true), 200);
+      return () => clearTimeout(t);
+    }
+  }, [phase]);
+
+  // Run agent sequence
   useEffect(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
-
-    resetAgents();
     resetBudget();
-    setCalculating(true);
 
-    const agentSequence = [
-      { name: 'Venue Agent', icon: '🏨', messages: [
-        `Analyzing ${input.city || 'destination'} venue costs...`,
-        `Checking ${(input.hotel_tier || '5star_city').replace(/_/g, ' ')} tier pricing...`,
-        `Calculating ${input.room_count} rooms for estimated duration...`,
-      ]},
-      { name: 'F&B Agent', icon: '🍽️', messages: [
-        `Computing per-head costs for ${input.guest_count} guests...`,
-        `Menu: ${(input.food_type || 'veg_nonveg').replace(/_/g, ' ')}, Bar: ${(input.bar_type || 'full_bar').replace(/_/g, ' ')}...`,
-        `Estimating specialty counters and staff costs...`,
-      ]},
-      { name: 'Décor Agent', icon: '🎨', messages: [
-        `Analyzing décor complexity tier ${input.decor_complexity}/5...`,
-        `Estimating ${input.decor_style || 'traditional'} style across ${input.events.length} events...`,
-        `Running AI cost prediction on design references...`,
-      ]},
-      { name: 'Artist Agent', icon: '🎤', messages: [
-        `Mapping ${input.entertainment_tier || 'premium'} tier entertainment costs...`,
-        `Checking artist database for available acts...`,
-      ]},
-      { name: 'Logistics Agent', icon: '🚗', messages: [
-        `Calculating transfers for ${Math.round(input.guest_count * input.outstation_percentage)} outstation guests...`,
-        `Fleet sizing: 1 Innova per 3 guests, estimating trips...`,
-        `Baraat logistics: Ghodi, Dholi, SFX...`,
-      ]},
-      { name: 'Sundries Agent', icon: '🎁', messages: [
-        `Estimating room baskets for ${input.room_count} rooms...`,
-        `Ritual materials, gifts, stationery calculations...`,
-      ]},
-    ];
+    const addLog = (who: string, msg: string, isDone: boolean) => {
+      setLogRows(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, who, msg, isDone }]);
+    };
 
-    let totalDelay = 500;
+    const setStatus = (id: string, status: AgentStatus) => {
+      setAgentStatuses(prev => ({ ...prev, [id]: status }));
+    };
+    const setTask = (id: string, task: string) => {
+      setAgentTasks(prev => ({ ...prev, [id]: task }));
+    };
+    const setBar = (id: string, pct: number) => {
+      setAgentBars(prev => ({ ...prev, [id]: pct }));
+    };
 
-    agentSequence.forEach((agent, agentIndex) => {
-      // Agent starts working
+    let delay = 500;
+
+    AGENTS.forEach((agent, idx) => {
       setTimeout(() => {
-        updateAgent(agent.name, { status: 'working' });
-        addMessage({ agent: agent.name, icon: agent.icon, message: `Starting ${agent.name.replace(' Agent', '')} analysis...`, type: 'status' });
-      }, totalDelay);
-      totalDelay += 600;
+        setStatus(agent.id, 'working');
+        setTask(agent.id, agent.tasks[0]);
+        setBar(agent.id, 5);
+        addLog(agent.fullName, 'Starting analysis…', false);
+      }, delay);
+      delay += 600;
 
-      // Agent messages
-      agent.messages.forEach((msg) => {
+      agent.tasks.forEach((task, ti) => {
+        if (ti === 0) return;
         setTimeout(() => {
-          addMessage({ agent: agent.name, icon: agent.icon, message: msg, type: 'message' });
-        }, totalDelay);
-        totalDelay += 800;
+          setTask(agent.id, task);
+          addLog(agent.fullName, task, false);
+          setBar(agent.id, Math.round((ti / agent.tasks.length) * 85));
+        }, delay);
+        delay += 850;
       });
 
-      // Agent completes
       setTimeout(() => {
-        updateAgent(agent.name, { status: 'done' });
-        setProgress(agentIndex + 1, 6);
-        addMessage({ agent: agent.name, icon: agent.icon, message: `✅ ${agent.name.replace(' Agent', '')} analysis complete!`, type: 'status' });
-      }, totalDelay);
-      totalDelay += 400;
-    });
+        setStatus(agent.id, 'done');
+        setTask(agent.id, '');
+        setBar(agent.id, 100);
+        addLog(agent.fullName, '', true);
+        setProgress({ done: idx + 1, total: AGENTS.length });
 
-    // Fetch real budget from API (or calculate locally)
-    setTimeout(async () => {
-      try {
-        const response = await fetch('http://localhost:8000/api/v1/budget/calculate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setBudget(data);
-        } else {
-          // Fallback: use local calculation
+        if (idx === AGENTS.length - 1) {
+          setTimeout(() => setAllDone(true), 700);
+          // Calculate budget
           calculateLocally();
         }
-      } catch {
-        // API not running, calculate locally
-        calculateLocally();
-      }
-
-      setCalculating(false);
-      setPhase('results');
-    }, totalDelay + 500);
+      }, delay);
+      delay += 500;
+    });
 
     function calculateLocally() {
-      // Simplified local budget calculation
       const baseVenue = input.room_count * 25000 * Math.max(input.events.length - 1, 2);
       const baseFnb = input.guest_count * 2500 * input.events.length;
       const baseDecor = input.events.length * 500000 * (input.decor_complexity / 3);
@@ -194,12 +262,12 @@ export default function BudgetPage() {
       const baseSundries = input.room_count * 1200 + input.guest_count * 500;
 
       const categories = {
-        'Venue & Accommodation': { name: 'Venue & Accommodation', icon: '🏨', low: baseVenue * 0.7, mid: baseVenue, high: baseVenue * 1.5, details: `${input.room_count} rooms in ${input.city || 'destination'}` },
-        'Food & Beverage': { name: 'Food & Beverage', icon: '🍽️', low: baseFnb * 0.7, mid: baseFnb, high: baseFnb * 1.4, details: `${input.guest_count} guests, ${input.events.length} events` },
-        'Décor & Design': { name: 'Décor & Design', icon: '🎨', low: baseDecor * 0.6, mid: baseDecor, high: baseDecor * 1.6, details: `Tier ${input.decor_complexity}/5, ${input.decor_style}` },
-        'Artist & Entertainment': { name: 'Artist & Entertainment', icon: '🎤', low: baseArtist * 0.6, mid: baseArtist, high: baseArtist * 1.5, details: `${input.entertainment_tier} tier` },
-        'Logistics & Transport': { name: 'Logistics & Transport', icon: '🚗', low: baseLogistics * 0.7, mid: baseLogistics, high: baseLogistics * 1.4, details: `${Math.round(input.guest_count * input.outstation_percentage)} outstation guests` },
-        'Sundries & Basics': { name: 'Sundries & Basics', icon: '🎁', low: baseSundries * 0.7, mid: baseSundries, high: baseSundries * 1.4, details: `Baskets, rituals, gifts` },
+        'Venue & Accommodation': { name: 'Venue & Accommodation', icon: '🏨', img: AGENTS[0].img, low: baseVenue * 0.7, mid: baseVenue, high: baseVenue * 1.5, details: `${input.room_count} rooms in ${input.city || 'destination'}` },
+        'Food & Beverage': { name: 'Food & Beverage', icon: '🍽️', img: AGENTS[1].img, low: baseFnb * 0.7, mid: baseFnb, high: baseFnb * 1.4, details: `${input.guest_count} guests, ${input.events.length} events` },
+        'Décor & Design': { name: 'Décor & Design', icon: '🎨', img: AGENTS[2].img, low: baseDecor * 0.6, mid: baseDecor, high: baseDecor * 1.6, details: `Tier ${input.decor_complexity}/5, ${input.decor_style}` },
+        'Artist & Entertainment': { name: 'Artist & Entertainment', icon: '🎤', img: AGENTS[3].img, low: baseArtist * 0.6, mid: baseArtist, high: baseArtist * 1.5, details: `${input.entertainment_tier} tier` },
+        'Logistics & Transport': { name: 'Logistics & Transport', icon: '🚗', img: AGENTS[4].img, low: baseLogistics * 0.7, mid: baseLogistics, high: baseLogistics * 1.4, details: `${Math.round(input.guest_count * input.outstation_percentage)} outstation guests` },
+        'Sundries & Basics': { name: 'Sundries & Basics', icon: '🎁', img: AGENTS[5].img, low: baseSundries * 0.7, mid: baseSundries, high: baseSundries * 1.4, details: 'Baskets, rituals, gifts' },
       };
 
       const total_low = Object.values(categories).reduce((s, c) => s + c.low, 0) * 1.05;
@@ -210,115 +278,130 @@ export default function BudgetPage() {
     }
   }, []);
 
+  const progressPct = (progress.done / progress.total) * 100;
+
   return (
-    <div className={styles.budgetPage}>
-      {/* Header */}
-      <nav className={styles.budgetNav}>
-        <Link href="/wizard" className={styles.backLink}>← Edit Inputs</Link>
-        <h1 className={styles.budgetLogo}>💍 WeddingBudget.ai</h1>
-        <Link href="/" className={styles.homeLink}>Home</Link>
+    <div className={styles.page}>
+      {/* Nav */}
+      <nav className={styles.nav}>
+        <Link href="/wizard" className={styles.navLink}>← Edit Inputs</Link>
+        <span className={styles.navLogo}><em>Wedding</em>Budget.ai</span>
+        <Link href="/" className={styles.navLink}>Home</Link>
       </nav>
 
-      {phase === 'agents' && (
-        <div className={styles.agentTheater}>
-          <div className={styles.theaterHeader}>
-            <h2 className={styles.theaterTitle}>🎭 Agent Theater</h2>
-            <p className={styles.theaterSubtitle}>Your AI wedding planners are calculating your budget...</p>
-          </div>
+      {/* ── THEATER ── */}
+      {phase === 'theater' && (
+        <div className={styles.theater}>
+          <p className={styles.eyebrow}>Budget Analysis in Progress</p>
+          <h1 className={styles.theaterTitle}>Your Planning Suite</h1>
+          <p className={styles.theaterSub}>Six specialists working in concert on your celebration</p>
 
-          {/* Agent Avatars Row */}
-          <div className={styles.agentRow}>
-            {Object.values(agents).map((agent) => (
-              <AgentAvatar key={agent.name} icon={agent.icon} name={agent.name} status={agent.status} />
-            ))}
-          </div>
-
-          {/* Progress Bar */}
-          <div className={styles.theaterProgress}>
-            <div className="progress-bar">
-              <div className="progress-bar-fill" style={{ width: `${(progress.completed / progress.total) * 100}%` }} />
-            </div>
-            <span className={styles.progressText}>
-              {progress.completed}/{progress.total} agents complete — {Math.round((progress.completed / progress.total) * 100)}%
-            </span>
-          </div>
-
-          {/* Chat Stream */}
-          <div className={styles.chatStream}>
-            {messages.map((msg, i) => (
-              <ChatMessage
-                key={msg.id}
-                icon={msg.icon}
-                agent={msg.agent}
-                message={msg.message}
-                isNew={i === messages.length - 1}
+          {/* Agent photo cards */}
+          <div className={styles.agGrid}>
+            {AGENTS.map(agent => (
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                status={agentStatuses[agent.id]}
+                currentTask={agentTasks[agent.id]}
+                barPct={agentBars[agent.id]}
               />
             ))}
-            <div ref={chatEndRef} />
           </div>
 
-          {/* Human-in-the-loop */}
-          {!isCalculating && hasResults && (
-            <div className={styles.humanLoop}>
-              <p>✅ All agents have completed their analysis!</p>
-              <button className="btn-primary" onClick={() => setPhase('results')}>
-                📊 View Your Budget Results
+          {/* Progress bar */}
+          <div className={styles.progressWrap}>
+            <div className={styles.progressTrack}>
+              <div className={styles.progressFill} style={{ width: `${progressPct}%` }} />
+            </div>
+            <p className={styles.progressLabel}>
+              {progress.done === progress.total
+                ? 'All specialists complete'
+                : `${progress.done} of ${progress.total} specialists complete`}
+            </p>
+          </div>
+
+          {/* Live log */}
+          <div className={styles.logWrap}>
+            <div className={styles.logHeader}>
+              <div className={`${styles.logDot} ${allDone ? styles.logDot_done : ''}`} />
+              <span className={styles.logTitle}>Live activity feed</span>
+            </div>
+            <div className={styles.logBody} ref={logRef}>
+              {logRows.map(row => (
+                <LogRow key={row.id} who={row.who} msg={row.msg} isDone={row.isDone} />
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          {allDone && hasResults && (
+            <div className={styles.cta}>
+              <div className={styles.ctaLine} />
+              <p className={styles.ctaMsg}>Your bespoke budget is ready</p>
+              <button className={styles.ctaBtn} onClick={() => setPhase('results')}>
+                Reveal Budget &rarr;
               </button>
             </div>
           )}
         </div>
       )}
 
+      {/* ── RESULTS ── */}
       {phase === 'results' && hasResults && (
-        <div className={styles.resultsContainer}>
-          {/* Total Budget Hero */}
-          <div className={styles.totalBudget}>
-            <div className="ornamental-border">
-              <span className="text-accent">Your Estimated Wedding Budget</span>
-              <div className={styles.totalRange}>
-                <div className={styles.totalItem}>
-                  <span className={styles.totalLabel}>Conservative</span>
-                  <span className={styles.totalValue}>{formatCurrency(totalLow)}</span>
-                </div>
-                <div className={`${styles.totalItem} ${styles.totalMid}`}>
-                  <span className={styles.totalLabel}>Recommended</span>
-                  <span className={styles.totalValueBig}>{formatCurrency(totalMid)}</span>
-                </div>
-                <div className={styles.totalItem}>
-                  <span className={styles.totalLabel}>Premium</span>
-                  <span className={styles.totalValue}>{formatCurrency(totalHigh)}</span>
-                </div>
+        <div className={styles.results}>
+          {/* Hero */}
+          <div className={styles.resHero}>
+            <p className={styles.resEyebrow}>Your Estimated Wedding Budget</p>
+            <div className={styles.resRange}>
+              <div className={styles.resItem}>
+                <span className={styles.resTag}>Conservative</span>
+                <span className={styles.resVal}>{formatCurrency(totalLow)}</span>
               </div>
-              <div className={styles.confidenceBar}>
-                <span>AI Confidence</span>
-                <div className={styles.confidenceTrack}>
-                  <div className={styles.confidenceFill} style={{ width: `${confidence * 100}%` }} />
-                </div>
-                <span>{Math.round(confidence * 100)}%</span>
+              <div className={`${styles.resItem} ${styles.resItem_mid}`}>
+                <span className={styles.resTag}>Recommended</span>
+                <span className={styles.resVal}>{formatCurrency(totalMid)}</span>
               </div>
+              <div className={styles.resItem}>
+                <span className={styles.resTag}>Premium</span>
+                <span className={styles.resVal}>{formatCurrency(totalHigh)}</span>
+              </div>
+            </div>
+            <div className={styles.confRow}>
+              <span className={styles.confLabel}>AI Confidence</span>
+              <div className={styles.confTrack}>
+                <div className={styles.confFill} style={{ width: confAnimated ? `${confidence * 100}%` : '0%' }} />
+              </div>
+              <span className={styles.confLabel}>{Math.round(confidence * 100)}%</span>
             </div>
           </div>
 
-          {/* Category Breakdown */}
-          <div className={styles.breakdownGrid}>
-            {Object.values(breakdown).map((cat) => (
-              <BudgetCard key={cat.name} {...cat} />
+          {/* Category breakdown */}
+          <div className={styles.catsGrid}>
+            {Object.values(breakdown).map((cat, i) => (
+              <BudgetCard
+                key={cat.name}
+                name={cat.name}
+                img={(cat as any).img || AGENTS[i % AGENTS.length].img}
+                low={cat.low}
+                mid={cat.mid}
+                high={cat.high}
+                pct={Math.round((cat.mid / cat.high) * 100)}
+                detail={cat.details}
+              />
             ))}
           </div>
 
           {/* Actions */}
-          <div className={styles.resultsActions}>
-            <button className="btn-primary" onClick={() => setPhase('agents')}>
-              🎭 View Agent Theater
+          <div className={styles.actions}>
+            <button className={styles.btnPrimary} onClick={() => setPhase('theater')}>
+              Back to Analysis
             </button>
-            <Link href="/wizard" className="btn-secondary">
-              ✏️ Modify Inputs
+            <Link href="/wizard" className={styles.btnSecondary}>
+              Modify Inputs
             </Link>
-            <button className="btn-secondary" onClick={() => {
-              /* TODO: PDF export */
-              alert('PDF export coming soon! This will generate a branded budget report.');
-            }}>
-              📄 Download PDF
+            <button className={styles.btnSecondary} onClick={() => alert('PDF export coming soon!')}>
+              Download PDF
             </button>
           </div>
         </div>
