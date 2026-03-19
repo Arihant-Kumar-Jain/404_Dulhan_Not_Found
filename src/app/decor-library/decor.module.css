@@ -1,0 +1,231 @@
+/* ════════════════════════════════════════════
+   Décor Library — Figma Redesign
+   ════════════════════════════════════════════ */
+
+.decorPage {
+  min-height: 100vh;
+  background: var(--bg-cream);
+}
+
+.decorNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid #F0EBE1;
+  background: var(--bg-white);
+}
+
+.backLink { font-size: 0.8125rem; color: var(--text-muted); }
+.backLink:hover { color: var(--maroon); }
+
+.decorLogo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-dark);
+}
+
+.shortlistBadge {
+  font-size: 0.75rem;
+  color: var(--maroon);
+  background: rgba(154, 33, 67, 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+/* Filters */
+.filters {
+  padding: var(--space-lg) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.filterRow {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filterBtn, .filterBtnSecondary {
+  padding: 6px 16px;
+  border: 1px solid #E8E4DC;
+  border-radius: var(--radius-full);
+  background: var(--bg-white);
+  color: var(--text-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.filterBtn:hover, .filterBtnSecondary:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.filterActive {
+  background: var(--maroon) !important;
+  color: #FFFFFF !important;
+  border-color: var(--maroon) !important;
+}
+
+@media (max-width: 768px) {
+  .filters { padding: var(--space-md); }
+  .filterRow { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: var(--space-xs); }
+  .filterBtn, .filterBtnSecondary { flex-shrink: 0; font-size: 0.75rem; }
+}
+
+/* Masonry Grid */
+.masonryGrid {
+  columns: 4;
+  column-gap: var(--space-md);
+  padding: 0 var(--space-lg) var(--space-3xl);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.decorItem {
+  break-inside: avoid;
+  margin-bottom: var(--space-md);
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-medium);
+  animation: fadeIn 0.4s var(--ease-out-expo) both;
+}
+
+.decorItem:hover {
+  box-shadow: var(--shadow-md);
+  transform: scale(1.02);
+}
+
+.decorShortlisted {
+  box-shadow: 0 0 0 2px var(--maroon), var(--shadow-md) !important;
+}
+
+.decorImageWrap {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.decorImageWrap img {
+  width: 100%;
+  display: block;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.decorItem:hover .decorImageWrap img { transform: scale(1.05); }
+
+.decorOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md);
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.decorItem:hover .decorOverlay { opacity: 1; }
+
+.decorCategory {
+  font-size: 0.7rem;
+  background: rgba(154, 33, 67, 0.8);
+  color: #FFF;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.decorCost {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--gold-light);
+}
+
+.decorMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.decorStyle { font-size: 0.7rem; color: var(--text-muted); margin-right: var(--space-sm); }
+.decorLevel { font-size: 0.6rem; color: var(--gold-dark); letter-spacing: 2px; }
+
+.heartBtn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+.heartBtn:hover { transform: scale(1.2); }
+.heartActive { animation: scaleIn 0.3s var(--ease-out-back); }
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  animation: fadeIn 0.3s var(--ease-out-expo);
+}
+
+.lightboxContent {
+  position: relative;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.lightboxContent img {
+  width: 100%;
+  max-height: 50vh;
+  object-fit: cover;
+}
+
+.lightboxInfo { padding: var(--space-lg); }
+.lightboxInfo h3 { font-family: var(--font-display); color: var(--text-dark); font-size: 1.1rem; }
+.lightboxInfo p { color: var(--text-body); font-size: 0.85rem; margin-top: 4px; }
+.lightboxCost { color: var(--maroon) !important; font-weight: 600; }
+
+.lightboxClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) { .masonryGrid { columns: 3; } }
+@media (max-width: 768px) {
+  .masonryGrid { columns: 2; padding: 0 var(--space-md) calc(var(--space-2xl) + var(--bottom-nav-height)); }
+}
+@media (max-width: 480px) { .masonryGrid { columns: 1; } }
