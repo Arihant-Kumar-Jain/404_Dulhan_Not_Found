@@ -10,7 +10,7 @@
   <!-- Links -->
   <p>
     <a href="docs/PRODUCT_DOCUMENT.md"><b>Product Document |</b></a>
-    <a href="SETUP_GUIDE.md"><b>Setup Guide |</b></a>
+    <a href="SETUP_GUIDE.md"><b>Setup Guide </b></a>
     
   </p>
 

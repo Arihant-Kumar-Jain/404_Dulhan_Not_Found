@@ -1,7 +1,7 @@
 # WeddingBudget.ai — Product & Technical Document
 
 **Team:** 404 Dulhan Not Found  
-**Version:** 2.0 (Finalized)  
+**Version:** 1.0 (Finalized)  
 **Date:** March 2026  
 **Classification:** Product & Engineering Reference
 
@@ -60,9 +60,7 @@ Planning an Indian wedding is among the most expensive and complex logistical un
 
 ### 3.1 User Flow
 
-```
-Landing Page → Plan Wizard (6 steps) → AI Analysis HUD → Budget Dashboard
-```
+![alt text](../assets/frontend.jpg)
 
 **Step 1 — City Selection:** Users select one of 5 major wedding destinations (Udaipur, Goa, Jaipur, Delhi NCR, Mumbai). Prices are calibrated per city based on local market data.
 
@@ -97,25 +95,7 @@ Once all agents complete, the dashboard transitions to:
 
 ### 4.1 High-Level Architecture
 
-```
-┌─────────────────────────┐        WebSocket         ┌──────────────────────────────┐
-│      Next.js 15          │ ◄────────────────────── │       FastAPI (Uvicorn)        │
-│  (React App Router)     │                           │                              │
-│                         │ ──POST/GET────────────► │  /api/v1/budget/ws           │
-│  /wizard                │                           │  /api/v1/decor/predict       │
-│  /budget                │                           │  /api/v1/vendors/nearby      │
-│  VendorMap (Leaflet)    │                           │                              │
-│  ExportPdfButton        │                           │  Orchestrator                │
-└─────────────────────────┘                           │  └── 7 Agents               │
-                                                       │                              │
-                                                       │  DecorAgent                  │
-                                                       │  └── CLIP + NN Model        │
-                                                       │                              │
-                                                       │  VendorSearchAgent          │
-                                                       │  └── Nominatim / Overpass   │
-                                                       └──────────────────────────────┘
-```
-
+![alt text](../assets/high_level.jpg)
 ### 4.2 Data Flow
 
 1. User completes wizard → `WeddingParams` JSON stored in `localStorage`
@@ -152,15 +132,7 @@ All WebSocket messages follow a typed JSON envelope:
 
 All agents inherit from `BaseAgent` (abstract class in `base_agent.py`):
 
-```
-BaseAgent (ABC)
-├── _ws_send: Optional[WSSendFn]          # WebSocket emit callback
-├── _emit(payload)                         # Sends typed JSON message
-├── _emit_status(status, message)          # Emits agent_status event
-├── _emit_message(message)                 # Emits agent_message event
-└── run(input_data) → AgentResult         # Wraps _calculate() + emits progress
-    └── _calculate(input_data) [abstract] # Synchronous estimation logic
-```
+![alt text](../assets/agent_arch.jpg)
 
 `AgentResult` is a typed `dict` subclass with keys: `agent_id`, `name`, `icon`, `low`, `mid`, `high`, `details`.
 
@@ -173,7 +145,7 @@ The `Orchestrator` class in `orchestrator.py`:
 - Applies a `contingency_percent` buffer (from `costs.py`) to all totals
 - Serializes results using `_json_safe()` to handle numpy dtype conversions
 
-### 5.3 Rule-Based Agents (6 Agents)
+### 5.3 Rule-Based Agents 
 
 | Agent | Key Variables | Formula Pattern |
 |-------|--------------|-----------------|
@@ -198,21 +170,7 @@ Décor is the most subjective wedding cost — the same "traditional" wedding ca
 
 A custom PyTorch neural network with 3 regression outputs (low, mid, high):
 
-```
-Input: feature vector (512 CLIP text dims + 16 tabular dims = 528 total)
-       │
-       ▼
-[Linear 528→256 + ReLU + BatchNorm + Dropout 0.3]
-       │
-       ▼
-[Linear 256→128 + ReLU + BatchNorm + Dropout 0.3]
-       │
-       ▼
-[Linear 128→64 + ReLU]
-       │
-       ▼
-[Linear 64→3]  →  [low, mid, high] (INR)
-```
+![alt text](../assets/ml.jpg)
 
 **Loss function:** `SmoothL1Loss` (Huber loss) — robust to pricing outliers  
 **Optimizer:** Adam with cosine annealing LR schedule
@@ -246,9 +204,7 @@ The `VendorSearchAgent` is entirely asynchronous (overrides `BaseAgent.run()` di
 
 ### 7.2 API Dependency Chain
 
-```
-Nominatim (geocode city) → Overpass (find vendors) → ORS / Haversine (distances)
-```
+![alt text](../assets/api.jpg)
 
 All three APIs are **free and open-source** — no Google Maps, no paid API key required.
 
@@ -413,14 +369,14 @@ All agents return `AgentResult` — a typed dict validated at runtime. The `_jso
 
 ## 14. Future Roadmap
 
-### Phase 1 — Stability & Accuracy (1–2 months)
+### Phase 1 — Stability & Accuracy 
 - [ ] Collect real labeled décor pricing data from 50+ Indian vendors
 - [ ] Re-train DecorNNRegressor on real data; target MAE < 15% on mid estimate
 - [ ] Improve Overpass queries with wedding-specific tags (mandap, banquet hall, pyrotechnics)
 - [ ] Add retry logic with exponential backoff for all external API calls
 - [ ] Write Playwright end-to-end test suite
 
-### Phase 2 — Features (2–4 months)
+### Phase 2 — Features 
 - [ ] **User Accounts:** Save, share, and retrieve past estimates
 - [ ] **Comparison Mode:** Side-by-side comparison of two city/tier configurations
 - [ ] **Timeline Generator:** Auto-generate a 12-month wedding planning checklist
@@ -428,14 +384,13 @@ All agents return `AgentResult` — a typed dict validated at runtime. The `_jso
 - [ ] **GST Calculator:** Toggle to show/hide GST-inclusive pricing
 - [ ] **Currency:** USD / AED export for NRI families
 
-### Phase 3 — Scale (4–8 months)
-- [ ] **50+ City Support:** Expand OSM vendor data to tier-2 cities (Indore, Surat, Chandigarh)
+### Phase 3 — Scale 
 - [ ] **PhotoMatch:** Allow users to upload décor inspiration images → CLIP image embedding for personalized estimates
 - [ ] **Planner Dashboard:** B2B version with client management, PDF branding
 - [ ] **API as a Product:** Offer estimation API to wedding portals (WedMeGood, ShaadiSaga)
 - [ ] **WhatsApp Bot:** Conversational wizard flow over WhatsApp Business API
 
-### Phase 4 — AI Upgrade (6–12 months)
+### Phase 4 — AI Upgrade 
 - [ ] **LLM Orchestrator:** Use an LLM to dynamically route queries to agents based on user descriptions in natural language
 - [ ] **Human-in-the-Loop Training:** Collect user feedback on estimate accuracy post-wedding to form a fine-tuning dataset
 - [ ] **Personalized Model:** User-specific model fine-tuning based on their taste profile (saved mood boards, past selections)
