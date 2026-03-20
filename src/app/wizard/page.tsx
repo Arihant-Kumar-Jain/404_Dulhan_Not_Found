@@ -31,7 +31,7 @@ function StepCity() {
               <span>{city.state}</span>
               <p>{city.description}</p>
             </div>
-            {input.city === city.id && <div className={styles.selectedCheck}>✓</div>}
+            {input.city === city.id && <div className={styles.selectedCheck}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>}
           </button>
         ))}
       </div>
@@ -55,11 +55,11 @@ function StepHotel() {
             className={`${styles.hotelCard} ${input.hotel_tier === tier.id ? styles.hotelSelected : ''}`}
             onClick={() => updateInput({ hotel_tier: tier.id })}
           >
-            <div className={styles.hotelIcon}>{tier.icon}</div>
+            <div className={styles.hotelIcon} dangerouslySetInnerHTML={{ __html: tier.icon }} />
             <h3>{tier.name}</h3>
             <p>{tier.description}</p>
             <span className={styles.priceIndicator}>{tier.priceIndicator}</span>
-            {input.hotel_tier === tier.id && <div className={styles.selectedCheck}>✓</div>}
+            {input.hotel_tier === tier.id && <div className={styles.selectedCheck}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>}
           </button>
         ))}
       </div>
@@ -161,10 +161,10 @@ function StepEvents() {
               onClick={() => toggleEvent(event.id)}
               style={{ '--event-color': event.color } as React.CSSProperties}
             >
-              <div className={styles.eventIcon}>{event.icon}</div>
+              <div className={styles.eventIcon} dangerouslySetInnerHTML={{ __html: event.icon }} />
               <h3>{event.name}</h3>
               <p>{event.description}</p>
-              {isSelected && <div className={styles.eventCheck}>✓</div>}
+              {isSelected && <div className={styles.eventCheck}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>}
             </button>
           );
         })}
@@ -197,7 +197,7 @@ function StepDecor() {
               <h3>{style.name}</h3>
               <p>{style.description}</p>
             </div>
-            {input.decor_style === style.id && <div className={styles.selectedCheck}>✓</div>}
+            {input.decor_style === style.id && <div className={styles.selectedCheck}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>}
           </button>
         ))}
       </div>
@@ -239,7 +239,7 @@ function StepFoodEntertainment() {
               className={`${styles.optionCard} ${input.food_type === food.id ? styles.optionSelected : ''}`}
               onClick={() => updateInput({ food_type: food.id })}
             >
-              <span className={styles.optionIcon}>{food.icon}</span>
+              <span className={styles.optionIcon} dangerouslySetInnerHTML={{ __html: food.icon }} />
               <strong>{food.name}</strong>
               <small>{food.description}</small>
             </button>
@@ -256,7 +256,7 @@ function StepFoodEntertainment() {
               className={`${styles.optionCard} ${input.bar_type === bar.id ? styles.optionSelected : ''}`}
               onClick={() => updateInput({ bar_type: bar.id })}
             >
-              <span className={styles.optionIcon}>{bar.icon}</span>
+              <span className={styles.optionIcon} dangerouslySetInnerHTML={{ __html: bar.icon }} />
               <strong>{bar.name}</strong>
               <small>{bar.description}</small>
             </button>
@@ -273,7 +273,7 @@ function StepFoodEntertainment() {
               className={`${styles.optionCard} ${input.entertainment_tier === tier.id ? styles.optionSelected : ''}`}
               onClick={() => updateInput({ entertainment_tier: tier.id })}
             >
-              <span className={styles.optionIcon}>{tier.icon}</span>
+              <span className={styles.optionIcon} dangerouslySetInnerHTML={{ __html: tier.icon }} />
               <strong>{tier.name}</strong>
               <span className={styles.priceTag}>{tier.price}</span>
               <small>{tier.description}</small>
@@ -296,7 +296,7 @@ function WizardProgress({ current, total }: { current: number; total: number }) 
       <div className={styles.progressSteps}>
         {steps.map((step, i) => (
           <div key={i} className={`${styles.progressStep} ${i <= current ? styles.progressActive : ''}`}>
-            <div className={styles.progressDot}>{i < current ? '✓' : i + 1}</div>
+            <div className={styles.progressDot}>{i < current ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : i + 1}</div>
             <span>{step}</span>
           </div>
         ))}
