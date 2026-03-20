@@ -20,32 +20,55 @@ cd 404_Dulhan_Not_Found
 
 ---
 
-## 2. Backend Setup (Python)
+## 2. One-Command Setup (Recommended)
 
-### 2a. Create & activate a virtual environment
+A `setup.sh` script handles everything — venv creation, pip install, npm install, and `.env` generation:
 
 ```bash
-# Using venv
+# Linux / macOS
+bash setup.sh
+```
+
+```powershell
+# Windows (Git Bash or WSL)
+bash setup.sh
+```
+
+After running, skip to **Step 4** to fill in your secrets.
+
+---
+
+## 3. Manual Backend Setup (Alternative)
+
+### 3a. Create & activate a virtual environment
+
+```bash
 python -m venv venv
+
 # Windows
 venv\Scripts\activate
+
 # macOS / Linux
 source venv/bin/activate
 ```
 
-### 2b. Install Python dependencies
+### 3b. Install Python dependencies
 
 ```bash
 pip install -r backend/requirements.txt
 ```
 
-> **CUDA / GPU users:** To enable GPU acceleration for the CLIP model:
+> **GPU users:** For CUDA-accelerated CLIP inference:
 > ```bash
 > pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 > pip install open-clip-torch
 > ```
 
-### 2c. Configure environment variables
+---
+
+## 4. Environment Variables (Required)
+
+Only **two variables** are required. Copy the example and fill them in:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -54,19 +77,18 @@ cp backend/.env.example backend/.env
 Edit `backend/.env`:
 
 ```env
-# Required
-NOMINATIM_USER_AGENT=WeddingBudgetAI/1.0
+# Supabase / PostgreSQL connection string
+# Find in: Supabase Dashboard → Project Settings → Database → Connection string
+DATABASE_URL=postgresql://user:password@host:port/dbname
 
-# Optional — enables real driving-distance calculations
-OPENROUTESERVICE_API_KEY=your_ors_key_here
-
-# ML model path (defaults to backend/models/artifacts/decor_nn.pt)
-DECOR_MODEL_PATH=backend/models/artifacts/decor_nn.pt
-
-# CLIP model name (default shown)
-CLIP_MODEL_NAME=ViT-B-32
-CLIP_PRETRAINED=laion2b_s34b_b79k
+# Groq API key — powers the AI LLM planning layer
+# Get a free key at: https://console.groq.com
+GROQ_API_KEY=gsk_your_key_here
 ```
+
+> No other environment variables are required for the application to run.
+
+
 
 ### 2d. (Optional) Train the Décor ML Model
 
@@ -137,22 +159,7 @@ python -m pytest tests/test_model.py -v     # ML model tests
 
 ---
 
-## 6. Project Scripts
-
-```bash
-# Generate synthetic training labels
-python backend/scripts/generate_labels.py
-
-# Scrape décor images (optional, for re-training)
-python backend/scrapers/scrape_images.py
-
-# Run a demo estimation without the frontend
-python backend/scripts/demo_estimation.py
-```
-
----
-
-## 7. Common Issues
+## 6. Common Issues
 
 ### `ModuleNotFoundError: No module named 'open_clip'`
 Run `pip install open-clip-torch` in the **same** Python environment as uvicorn.
@@ -166,5 +173,3 @@ The `ExportPdfButton` component is dynamically imported with `ssr: false`. Do no
 ### Overpass API `504 Gateway Timeout`
 This is a transient OSM API issue. The `VendorSearchAgent` automatically retries once and returns empty results on failure — the budget pipeline continues normally.
 
-### Budget shows `₹0` for all categories
-The model checkpoint may not exist at `DECOR_MODEL_PATH`. The agent will use the rule-based `costs.py` table instead. Check logs for `[DecorAgent]` errors.
