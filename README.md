@@ -175,18 +175,7 @@ Décor is the most subjective Indian wedding cost — the same "royal" event can
 
 ### Architecture
 
-```
-Input: CLIP Text Embedding (512) + Tabular Features (16) = 528-dim vector
-         │
-         ▼
-    Dense 256 + ReLU + BatchNorm + Dropout(0.3)
-         │
-    Dense 128 + ReLU + BatchNorm + Dropout(0.3)
-         │
-    Dense 64 + ReLU
-         │
-    Dense 3  →  [Low ₹, Mid ₹, High ₹]
-```
+![alt text](./assets/ml.jpg)
 
 **Text prompt example fed to CLIP:**
 > *"Royal Rajputana style wedding décor for reception with 300 guests, cold pyros, custom stage, complexity level 4, Category A city"*
@@ -204,20 +193,6 @@ Indian wedding vendors universally quote price **ranges** — not fixed prices. 
 
 The `VendorSearchAgent` uses **100% free, open-source APIs** — no Google Maps, no paid keys required:
 
-```
-City Name
-    │
-    ▼ Nominatim (OSM geocoding)
-(lat, lon)
-    │
-    ▼ Overpass API  (OSM vendor search, 20km radius)
-Raw vendor list: {name, lat, lon, tags, osm_id}
-    │
-    ▼ ORS Matrix API (if key set) or Haversine (fallback)
-Driving distances
-    │
-    ▼ Top-5 vendors per category → Leaflet map markers
-```
 
 **Vendor categories searched:** Decorators · Caterers · Photography Studios · AV/Sound · Tent & Furniture
 

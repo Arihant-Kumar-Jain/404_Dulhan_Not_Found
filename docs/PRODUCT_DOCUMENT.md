@@ -264,20 +264,7 @@ The pipeline uses `ON CONFLICT (source_id) DO UPDATE` — idempotent upserts mea
 
 #### Thread Concurrency Model
 
-```
-Main Thread
-  └── ThreadPoolExecutor (MAX_COMBO_THREADS = 3)
-        ├── Combo 1 (Pheras × Traditional)
-        │     └── ThreadPoolExecutor (4 workers)
-        │           ├── fetch_pixabay()
-        │           ├── fetch_pexels()       ──► SharedQuota (67)
-        │           ├── fetch_unsplash()    ◄── All writing to same DB
-        │           └── fetch_pinterest()
-        ├── Combo 2 (Pheras × Royal)       [concurrent with Combo 1]
-        │     └── … (same structure)
-        └── Combo 3 (Pheras × Modern)      [concurrent with Combo 1, 2]
-              └── … (same structure)
-```
+![alt text](../assets/scraping_pipeline.jpg)
 
 Up to 3 combos run in parallel at once; each combo runs all 4 sources in parallel. This gives a theoretical max concurrency of **12 simultaneous HTTP/browser threads**.
 
