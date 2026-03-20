@@ -189,7 +189,120 @@ The model produces three prices — not one — because:
 2. Uncertainty quantification at inference is valuable for planning
 3. Trained labels are annotated by domain experts with all three tiers
 
----
+### 6.5 Training Data: Décor Image Scraping Pipeline
+
+The `DecorNNRegressor` was trained on a curated dataset of wedding décor images collected via an automated, concurrent scraping pipeline located in `backend/scrapers-pipeline/image_scraper.py`.
+
+#### Why a Custom Dataset?
+
+No publicly available dataset captures Indian wedding décor styles (Pheras, Sangeet, Haldi, Mehndi, Reception) across Traditional / Royal / Modern categories with pricing annotations. All existing wedding image datasets are Western-centric and lack the event-specific taxonomies needed.
+
+#### Scraping Architecture: 4 Parallel Sources per Combo
+
+The scraper targets **15 combinations** (5 functions × 3 styles) and collects **67 images per combo** (~1,005 images total). For each combination, 4 scrapers run simultaneously in a `ThreadPoolExecutor`:
+
+| Source | Method | Key Behavior |
+|--------|--------|--------------|
+| **Pixabay** | REST API (`pixabay.com/api/`) | Paginated, 20/page, exponential backoff on 429 |
+| **Pexels** | REST API (`api.pexels.com/v1/search`) | Respects `Retry-After` header on rate limit |
+| **Unsplash** | REST API (`api.unsplash.com/search/photos`) | Uses alternate English queries (OSM-indexed for Western terms) |
+| **Pinterest** | Playwright headless Chromium scraper | Logs in with credentials, scrolls 25× to load lazy images |
+
+#### Thread-Safe Quota System
+
+A custom `SharedQuota` class coordinates all 4 threads with a **mutex-guarded atomic counter**:
+
+```python
+class SharedQuota:
+    def claim(self) -> bool:
+        with self._lock:          # threading.Lock
+            if self._count < 67: 
+                self._count += 1
+                return True
+            return False          # Quota full — all sources stop
+```
+
+Whichever source fills the 67-image quota first causes all remaining threads to exit gracefully. Rate-limited or stuck sources are automatically skipped — the fastest source fills the gap.
+
+#### Query Design
+
+Each (function, style) pair uses **two query variants**:
+
+```python
+# Primary query (Pixabay, Pexels, Pinterest)
+"Royal pheras wedding mandap decoration flowers"
+
+# Alternate English query (Unsplash — Western-indexed library)  
+"Royal Indian wedding mandap floral decoration"
+```
+
+The alternate Unsplash queries use broader English terms because Unsplash's search index performs better on Western terminology for Indian event concepts.
+
+#### Database: Supabase PostgreSQL (`decor_library` table)
+
+Each scraped image is upserted into a Supabase PostgreSQL table with the following schema:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `source_id` | `TEXT PRIMARY KEY` | e.g. `pixabay_123456`, `unsplash_abc123` |
+| `source` | `TEXT` | pixabay / pexels / unsplash / pinterest |
+| `function_type` | `TEXT` | Pheras / Sangeet / Reception / Haldi / Mehndi |
+| `style` | `TEXT` | Traditional / Royal / Modern |
+| `combination_key` | `TEXT` | e.g. `Pheras_Royal` |
+| `original_url` | `TEXT` | CDN URL of the source image |
+| `width`, `height` | `INT` | Image dimensions |
+| `tags` | `TEXT` | Comma-separated keyword tags from source |
+| `author` | `TEXT` | Photographer / uploader credit |
+| `license` | `TEXT` | Pixabay / Pexels / Unsplash license type |
+| `raw_metadata` | `JSONB` | Full original API response |
+| `is_tagged` | `BOOL` | Admin annotation status (default `false`) |
+| `complexity_tier` | `INT` | 1–5 complexity label (admin-assigned) |
+| `cost_estimate` | `JSONB` | `{low, mid, high}` pricing annotation |
+| `admin_notes` | `TEXT` | Reviewer notes |
+
+The pipeline uses `ON CONFLICT (source_id) DO UPDATE` — idempotent upserts mean re-runs are safe and add only new images.
+
+#### Thread Concurrency Model
+
+```
+Main Thread
+  └── ThreadPoolExecutor (MAX_COMBO_THREADS = 3)
+        ├── Combo 1 (Pheras × Traditional)
+        │     └── ThreadPoolExecutor (4 workers)
+        │           ├── fetch_pixabay()
+        │           ├── fetch_pexels()       ──► SharedQuota (67)
+        │           ├── fetch_unsplash()    ◄── All writing to same DB
+        │           └── fetch_pinterest()
+        ├── Combo 2 (Pheras × Royal)       [concurrent with Combo 1]
+        │     └── … (same structure)
+        └── Combo 3 (Pheras × Modern)      [concurrent with Combo 1, 2]
+              └── … (same structure)
+```
+
+Up to 3 combos run in parallel at once; each combo runs all 4 sources in parallel. This gives a theoretical max concurrency of **12 simultaneous HTTP/browser threads**.
+
+#### Deduplication
+
+Before saving, every image is checked against the database by `source_id`:
+```python
+def already_exists(source_id: str) -> bool:
+    cur.execute("SELECT 1 FROM decor_library WHERE source_id = %s LIMIT 1", ...)
+```
+
+Thread-local `psycopg2` connections (`threading.local()`) avoid connection race conditions.
+
+#### Dataset Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total combinations | 15 (5 functions × 3 styles) |
+| Target images per combo | 67 |
+| Total images (fully scraped) | ~1,005 |
+| Sources | Pixabay, Pexels, Unsplash, Pinterest |
+| Storage | Supabase PostgreSQL (`decor_library` table) |
+| Annotation status | `is_tagged = false` until admin labels `complexity_tier` and `cost_estimate` |
+
+
 
 ## 7. Vendor Intelligence Module
 
