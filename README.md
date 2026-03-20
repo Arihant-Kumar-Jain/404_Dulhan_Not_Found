@@ -10,7 +10,8 @@
   <!-- Links -->
   <p>
     <a href="docs/PRODUCT_DOCUMENT.md"><b>Product Document |</b></a>
-    <a href="SETUP_GUIDE.md"><b>Setup Guide </b></a>
+    <a href="SETUP_GUIDE.md"><b>Setup Guide |</b></a>
+    <a href="https://youtu.be/R31dDlCtr10"><b> Youtube Demo Video </b></a>
     
   </p>
 
