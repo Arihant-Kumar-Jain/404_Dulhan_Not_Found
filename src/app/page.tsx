@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useAuthStore } from '@/stores/authStore';
 import styles from './page.module.css';
 
 const Chatbot = dynamic(() => import('@/components/Chatbot'), { ssr: false });
 
 /* ═══════════════ Bottom Navigation (Figma: 5 tabs) ═══════════════ */
 function BottomNav() {
+  const role = useAuthStore((s) => s.role);
   return (
     <nav className="bottom-nav show-mobile">
       <Link href="/" className="bottom-nav-item active">
@@ -27,10 +29,17 @@ function BottomNav() {
         <svg className="bottom-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
         Inspire
       </Link>
-      <Link href="/admin" className="bottom-nav-item">
-        <svg className="bottom-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-        Settings
-      </Link>
+      {role === 'admin' ? (
+        <Link href="/admin" className="bottom-nav-item">
+          <svg className="bottom-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+          Admin
+        </Link>
+      ) : (
+        <Link href="/profile" className="bottom-nav-item">
+          <svg className="bottom-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+          Profile
+        </Link>
+      )}
     </nav>
   );
 }
@@ -145,6 +154,7 @@ export default function HomePage() {
   const [loaded, setLoaded] = useState(false);
   const [lang, setLang] = useState<'en' | 'hi'>('en');
   const [isChatOpen, setChatOpen] = useState(false);
+  const role = useAuthStore((s) => s.role);
   const d = t[lang];
 
   useEffect(() => { setTimeout(() => setLoaded(true)); }, []);
@@ -167,7 +177,7 @@ export default function HomePage() {
             <Link href="/wizard">{d.navPlan}</Link>
             <Link href="/budget">{d.navBudget}</Link>
             <Link href="/decor-library">{d.navInspire}</Link>
-            <Link href="/admin">{d.navAdmin}</Link>
+            {role === 'admin' && <Link href="/admin">{d.navAdmin}</Link>}
           </nav>
           <div className={styles.headerActions}>
             <div style={{ display: 'flex', gap: '6px', cursor: 'pointer', fontWeight: '600', color: 'var(--maroon)', fontSize: '0.9rem', alignItems: 'center' }}>
@@ -175,6 +185,9 @@ export default function HomePage() {
               <span style={{ opacity: 0.3 }}>|</span>
               <span onClick={() => setLang('hi')} style={{ opacity: lang === 'hi' ? 1 : 0.5, transition: 'opacity 0.2s' }}>हिं</span>
             </div>
+            <Link href={role ? '/profile' : '/login'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(154, 33, 67, 0.05)', color: 'var(--maroon)', transition: 'all 0.2s' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </Link>
             <Link href="/wizard" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.8125rem' }}>
               {lang === 'hi' ? 'शुरू करें' : 'Get Started'}
             </Link>

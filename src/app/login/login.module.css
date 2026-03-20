@@ -1,0 +1,593 @@
+/* ════════════════════════════════════════════
+   Login Page — Responsive Layout
+   Desktop: photo left | form right
+   Mobile: photo top (with text) | form below
+   Image covers full area with glassmorphism text overlay
+   ════════════════════════════════════════════ */
+
+:root {
+  --bg-cream: #fbf8f2;
+  --bg-white: #ffffff;
+  --maroon: #9A2143;
+  --maroon-dark: #7a1a36;
+  --gold: #bfa054;
+  --gold-dark: #9e7e3e;
+  --gold-light: #e0cfaa;
+  --text-dark: #2c2b28;
+  --text-body: #4b4a47;
+  --text-muted: #7e7c78;
+  --text-light: #9b9892;
+  --gradient-maroon: linear-gradient(135deg, #9A2143 0%, #7a1a36 100%);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.2s ease;
+  --radius-sm: 12px;
+  --radius-lg: 32px;
+  --radius-full: 999px;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
+}
+
+/* Main Layout */
+.loginPage {
+  min-height: 100vh;
+  display: flex;
+  width: 100%;
+  background: var(--bg-cream);
+}
+
+/* ── Photo Section (Left on desktop, top on mobile) ── */
+.photoSection {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-cream);
+  min-height: 100vh;
+}
+
+.photoContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.heroImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Glassmorphism text overlay - NO BORDER */
+.photoCaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-3xl) var(--space-2xl);
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.2) 80%,
+      transparent 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  text-align: center;
+  animation: fadeInUp 0.7s var(--ease-out-expo) both;
+  z-index: 2;
+  /* Removed border-top property */
+}
+
+.photoCaption h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.photoCaption p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Form Section (Right on desktop, below on mobile) ── */
+.formSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  position: relative;
+  background: var(--bg-white);
+  border-radius: 0;
+  box-shadow: -8px 0 30px -12px rgba(0, 0, 0, 0.08);
+  z-index: 3;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 2;
+  animation: fadeInScale 0.6s var(--ease-out-expo) both;
+}
+
+/* Logo */
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--maroon);
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: var(--gold-dark);
+  font-weight: 500;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-xl);
+  letter-spacing: 0.3px;
+}
+
+/* Ornamental divider */
+.ornamentDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--space-xl);
+}
+
+.ornamentLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+
+.ornamentIcon {
+  color: var(--gold-dark);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* Buttons Group */
+.btnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Admin Button */
+.btnAdmin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  background: var(--gradient-maroon);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.btnAdmin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  background-size: 200% 200%;
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.btnAdmin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(154, 33, 67, 0.3);
+}
+
+.btnAdmin:active {
+  transform: translateY(0);
+}
+
+/* Guest Button */
+.btnGuest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--maroon);
+  background: transparent;
+  border: 1.5px solid var(--maroon);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnGuest:hover {
+  background: rgba(154, 33, 67, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(154, 33, 67, 0.1);
+}
+
+.btnGuest:active {
+  transform: translateY(0);
+}
+
+/* Separator */
+.separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: var(--space-xs) 0;
+}
+
+.separatorLine {
+  flex: 1;
+  height: 1px;
+  background: #e8e4dc;
+}
+
+.separatorText {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Google Button */
+.btnGoogle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  border: 1.5px solid #e8e4dc;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnGoogle:hover {
+  border-color: #d4cdc0;
+  background: #fefcf8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btnGoogle:active {
+  transform: translateY(0);
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Footer Note */
+.footerNote {
+  margin-top: var(--space-xl);
+  font-size: 0.7rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Decorative corner ornaments */
+.cornerTL,
+.cornerBR {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  opacity: 0.08;
+  color: var(--gold-dark);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cornerTL {
+  top: 24px;
+  left: 24px;
+}
+
+.cornerBR {
+  bottom: 24px;
+  right: 24px;
+  transform: rotate(180deg);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% -200%;
+  }
+
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   Mobile: photo above, form below
+   ════════════════════════════════════════════ */
+
+/* Tablet and Mobile (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .loginPage {
+    flex-direction: column;
+  }
+
+  /* Photo section becomes top section with full width image */
+  .photoSection {
+    min-height: 50vh;
+    max-height: 60vh;
+    position: relative;
+  }
+
+  .photoContainer {
+    min-height: 50vh;
+    height: 100%;
+  }
+
+  .heroImage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Glassmorphism overlay on mobile - positioned at bottom - NO BORDER */
+  .photoCaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-xl) var(--space-lg);
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.5) 50%,
+        rgba(0, 0, 0, 0.2) 80%,
+        transparent 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* Removed border-top property */
+  }
+
+  .photoCaption h2 {
+    font-size: 1.8rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .photoCaption p {
+    font-size: 0.9rem;
+    max-width: 320px;
+  }
+
+  /* Form section becomes bottom section */
+  .formSection {
+    padding: var(--space-2xl) var(--space-lg);
+    background: var(--bg-white);
+    box-shadow: 0 -8px 25px -10px rgba(0, 0, 0, 0.05);
+    border-radius: 32px 32px 0 0;
+    margin-top: -8px;
+    position: relative;
+    z-index: 4;
+  }
+
+  .formContainer {
+    max-width: 100%;
+  }
+
+  .logo {
+    font-size: 1.7rem;
+    text-align: center;
+  }
+
+  .tagline {
+    text-align: center;
+  }
+
+  .ornamentDivider {
+    margin: var(--space-lg) 0;
+  }
+
+  /* Hide decorative corners on mobile/tablet */
+  .cornerTL,
+  .cornerBR {
+    display: none;
+  }
+
+  .btnAdmin,
+  .btnGuest,
+  .btnGoogle {
+    padding: 12px 20px;
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .photoSection {
+    min-height: 45vh;
+    max-height: 55vh;
+  }
+
+  .photoCaption {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .photoCaption h2 {
+    font-size: 1.5rem;
+  }
+
+  .photoCaption p {
+    font-size: 0.85rem;
+  }
+
+  .formSection {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .tagline {
+    font-size: 0.75rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  .btnAdmin,
+  .btnGuest,
+  .btnGoogle {
+    padding: 11px 18px;
+    font-size: 0.9rem;
+  }
+
+  .footerNote {
+    font-size: 0.65rem;
+    margin-top: var(--space-lg);
+  }
+}
+
+/* Tablet Landscape (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .photoSection {
+    min-height: 55vh;
+    max-height: 65vh;
+  }
+
+  .photoCaption {
+    padding: var(--space-2xl) var(--space-xl);
+  }
+
+  .photoCaption h2 {
+    font-size: 2rem;
+  }
+
+  .formSection {
+    padding: var(--space-2xl) var(--space-xl);
+  }
+}
+
+/* Large Desktop (min-width: 1400px) */
+@media (min-width: 1400px) {
+  .photoCaption h2 {
+    font-size: 2.5rem;
+  }
+
+  .photoCaption p {
+    font-size: 1rem;
+    max-width: 420px;
+  }
+
+  .formContainer {
+    max-width: 480px;
+  }
+
+  .logo {
+    font-size: 2.2rem;
+  }
+}
+
+/* For devices with hover capability, add slight zoom on image hover */
+@media (hover: hover) {
+  .heroImage {
+    transition: transform 0.5s ease;
+  }
+
+  .photoSection:hover .heroImage {
+    transform: scale(1.05);
+  }
+
+  .photoCaption {
+    transition: backdrop-filter 0.3s ease;
+  }
+}
+
+/* Print styles */
+@media print {
+  .loginPage {
+    display: block;
+  }
+
+  .btnAdmin,
+  .btnGuest,
+  .btnGoogle {
+    display: none;
+  }
+
+  .photoCaption {
+    background: rgba(0, 0, 0, 0.7);
+    color: black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
