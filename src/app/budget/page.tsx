@@ -205,79 +205,26 @@ export default function BudgetPage() {
     }
   }, [phase]);
 
-  // Run agent sequence & WebSocket
+  // Capture latest store functions in refs so the effect doesn't re-run
+  const inputRef = useRef(input);
+  const setBudgetRef = useRef(setBudget);
+  const resetBudgetRef = useRef(resetBudget);
+  useEffect(() => { inputRef.current = input; }, [input]);
+  useEffect(() => { setBudgetRef.current = setBudget; }, [setBudget]);
+  useEffect(() => { resetBudgetRef.current = resetBudget; }, [resetBudget]);
+
+  // Run agent sequence & WebSocket — runs ONCE on mount
   useEffect(() => {
+    // In React StrictMode (dev), this effect runs twice:
+    // mount → cleanup → mount. We must allow the second mount to work.
     if (hasStarted.current) return;
     hasStarted.current = true;
-    resetBudget();
+    resetBudgetRef.current();
 
-    let ws: WebSocket | null = null;
-    try {
-      ws = new WebSocket('ws://localhost:8000/api/v1/budget/ws');
-      ws.onopen = () => {
-        const payloadInput = { ...input, city: input.city || 'delhi' };
-        ws?.send(JSON.stringify({ type: 'start_estimation', data: payloadInput }));
-      };
-      ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
-        if (msg.type === "agent_result" && msg.agent_id === "vendor_search") {
-          setVendorData(msg.result.vendors);
-        } else if (msg.type === "final_budget") {
-          // Hardcoded baseline minimums to avoid ₹0
-          const FLOOR = {
-            venue: 960000,
-            food: 1630000,
-            fnb: 1630000,
-            decor: 560000,
-            artist: 420000,
-            logistics: 570000,
-            sundries: 180000,
-          };
-
-          const breakdown: Record<string, any> = {};
-          let totalLow = 0, totalMid = 0, totalHigh = 0;
-
-          (msg.categories || []).forEach((cat: any, i: number) => {
-            const key = Object.keys(FLOOR).find(k => cat.name.toLowerCase().includes(k));
-            const fMin = key ? (FLOOR as any)[key] : 0;
-
-            const cLow = Math.max(cat.low, fMin);
-            const cMid = Math.max(cat.mid, fMin);
-            const cHigh = Math.max(cat.high, fMin);
-
-            totalLow += cLow;
-            totalMid += cMid;
-            totalHigh += cHigh;
-
-            breakdown[cat.name] = {
-              name: cat.name,
-              icon: '💎',
-              img: AGENTS[i % AGENTS.length]?.img || '/assets/sundries.jpg',
-              low: cLow,
-              mid: cMid,
-              high: cHigh,
-              details: cat.details
-            };
-          });
-
-          // Match older structure adding +5% to totals
-          setBudget({
-            total_low: totalLow * 1.05,
-            total_mid: totalMid * 1.05,
-            total_high: totalHigh * 1.05,
-            confidence: 0.82,
-            breakdown
-          });
-        }
-      };
-    } catch (err) {
-      console.warn("WebSocket connection failed:", err);
-    }
-
+    // ── Helper functions ──
     const addLog = (who: string, msg: string, isDone: boolean) => {
       setLogRows(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, who, msg, isDone }]);
     };
-
     const setStatus = (id: string, status: AgentStatus) => {
       setAgentStatuses(prev => ({ ...prev, [id]: status }));
     };
@@ -288,28 +235,111 @@ export default function BudgetPage() {
       setAgentBars(prev => ({ ...prev, [id]: pct }));
     };
 
+    // ── WebSocket connection ──
+    let ws: WebSocket | null = null;
+    try {
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/api/v1/budget/ws';
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log('[WS] Connected');
+        const currentInput = inputRef.current;
+        const payloadInput = { ...currentInput, city: currentInput.city || 'delhi' };
+        ws?.send(JSON.stringify({ type: 'start_estimation', data: payloadInput }));
+      };
+
+      ws.onerror = (error) => {
+        console.error('[WS] Error:', error);
+        addLog('System', 'WebSocket connection failed. Ensure backend is running.', true);
+      };
+
+      ws.onclose = (event) => {
+        console.log('[WS] Closed:', event.code, event.reason);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+
+          if (msg.type === 'agent_result' && msg.agent_id === 'vendor_search') {
+            setVendorData(msg.result?.vendors ?? null);
+          } else if (msg.type === 'final_budget') {
+            const FLOOR: Record<string, number> = {
+              venue: 960000,
+              food: 1630000,
+              fnb: 1630000,
+              decor: 560000,
+              artist: 420000,
+              logistics: 570000,
+              sundries: 180000,
+            };
+
+            const bd: Record<string, any> = {};
+            let tLow = 0, tMid = 0, tHigh = 0;
+
+            (msg.categories || []).forEach((cat: any, i: number) => {
+              const key = Object.keys(FLOOR).find(k => cat.name.toLowerCase().includes(k));
+              const fMin = key ? FLOOR[key] : 0;
+
+              const cLow = Math.max(cat.low, fMin);
+              const cMid = Math.max(cat.mid, fMin);
+              const cHigh = Math.max(cat.high, fMin);
+
+              tLow += cLow;
+              tMid += cMid;
+              tHigh += cHigh;
+
+              bd[cat.name] = {
+                name: cat.name,
+                icon: '💎',
+                img: AGENTS[i % AGENTS.length]?.img || '/assets/sundries.jpg',
+                low: cLow,
+                mid: cMid,
+                high: cHigh,
+                details: cat.details,
+              };
+            });
+
+            setBudgetRef.current({
+              total_low: tLow * 1.05,
+              total_mid: tMid * 1.05,
+              total_high: tHigh * 1.05,
+              confidence: 0.82,
+              breakdown: bd,
+            });
+          }
+        } catch (err) {
+          console.error('[WS] Message parse error:', err);
+        }
+      };
+    } catch (err) {
+      console.warn('[WS] Connection failed:', err);
+    }
+
+    // ── Animated agent theater sequence ──
     let delay = 500;
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     AGENTS.forEach((agent, idx) => {
-      setTimeout(() => {
+      timers.push(setTimeout(() => {
         setStatus(agent.id, 'working');
         setTask(agent.id, agent.tasks[0]);
         setBar(agent.id, 5);
         addLog(agent.fullName, 'Starting analysis…', false);
-      }, delay);
+      }, delay));
       delay += 600;
 
       agent.tasks.forEach((task, ti) => {
         if (ti === 0) return;
-        setTimeout(() => {
+        timers.push(setTimeout(() => {
           setTask(agent.id, task);
           addLog(agent.fullName, task, false);
           setBar(agent.id, Math.round((ti / agent.tasks.length) * 85));
-        }, delay);
+        }, delay));
         delay += 850;
       });
 
-      setTimeout(() => {
+      timers.push(setTimeout(() => {
         setStatus(agent.id, 'done');
         setTask(agent.id, '');
         setBar(agent.id, 100);
@@ -317,14 +347,20 @@ export default function BudgetPage() {
         setProgress({ done: idx + 1, total: AGENTS.length });
 
         if (idx === AGENTS.length - 1) {
-          setTimeout(() => setAllDone(true), 700);
+          timers.push(setTimeout(() => setAllDone(true), 700));
         }
-      }, delay);
+      }, delay));
       delay += 500;
     });
 
-    return () => ws?.close();
-  }, [input, resetBudget, setBudget]); // Added dependencies to fix linting, safely
+    return () => {
+      // Reset so StrictMode remount can re-create everything
+      hasStarted.current = false;
+      ws?.close();
+      timers.forEach(t => clearTimeout(t));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps — runs exactly once on mount
 
   const progressPct = (progress.done / progress.total) * 100;
 
